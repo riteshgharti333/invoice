@@ -1,0 +1,9 @@
+{
+  "name": "@invoice/shared",
+  "version": "1.0.0",
+  "main": "schema.ts",
+  "types": "schema.ts",
+  "dependencies": {
+    "zod": "^3.22.0"
+  }
+}
