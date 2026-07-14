@@ -2,13 +2,16 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 import app from '../../../app';
 
+
 let authCookie: string;
 let paymentId: string;
 let invoiceId: string;
-const customerId = 'cmrj0frih00006w7ok9fm4pp2';
-const serviceId = 'cmrj0x9tl0004kzfanekq0q8b';
+let customerId: string;
+let serviceId: string;
+
 
 describe('Payment API - Integration Tests', () => {
+ 
   beforeAll(async () => {
     // Login
     const loginRes = await request(app)
@@ -17,6 +20,29 @@ describe('Payment API - Integration Tests', () => {
     
     const cookies = loginRes.headers['set-cookie'];
     authCookie = Array.isArray(cookies) ? cookies[0] : cookies;
+
+    // Create customer
+    const custRes = await request(app)
+      .post('/api/v1/customer')
+      .set('Cookie', authCookie)
+      .send({
+        name: 'Payment Test Customer',
+        email: `pay-test-${Date.now()}@test.com`,
+        phone: `9${Date.now().toString().slice(-9)}`,
+        notes: 'TEST_Payment',
+      });
+    customerId = custRes.body.data.id;
+
+    // Create service
+    const svcRes = await request(app)
+      .post('/api/v1/service')
+      .set('Cookie', authCookie)
+      .send({
+        name: 'Payment Test Service',
+        price: 1000,
+        description: 'TEST_Payment',
+      });
+    serviceId = svcRes.body.data.id;
 
     // Create invoice for payment test
     const invRes = await request(app)
@@ -29,6 +55,7 @@ describe('Payment API - Integration Tests', () => {
       });
     invoiceId = invRes.body.data.id;
   });
+
 
   describe('POST /api/v1/payment', () => {
     it('should create a payment', async () => {

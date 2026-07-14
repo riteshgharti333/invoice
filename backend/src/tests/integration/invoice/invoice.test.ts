@@ -4,18 +4,43 @@ import app from '../../../app';
 
 let authCookie: string;
 let invoiceId: string;
-const customerId = 'cmrj0frih00006w7ok9fm4pp2';
-const serviceId = 'cmrj0x9tl0004kzfanekq0q8b';
+let customerId: string;
+let serviceId: string;
 
 describe('Invoice API - Integration Tests', () => {
-  beforeAll(async () => {
+
+    beforeAll(async () => {
     const loginRes = await request(app)
       .post('/api/v1/auth/login')
       .send({ email: 'ritesh@gmail.com', password: '12345678' });
     
     const cookies = loginRes.headers['set-cookie'];
     authCookie = Array.isArray(cookies) ? cookies[0] : cookies;
+
+    // Create customer
+    const custRes = await request(app)
+      .post('/api/v1/customer')
+      .set('Cookie', authCookie)
+      .send({
+        name: 'Invoice Test Customer',
+        email: `inv-test-${Date.now()}@test.com`,
+        phone: `9${Date.now().toString().slice(-9)}`,
+        notes: 'TEST_Invoice',
+      });
+    customerId = custRes.body.data.id;
+
+    // Create service
+    const svcRes = await request(app)
+      .post('/api/v1/service')
+      .set('Cookie', authCookie)
+      .send({
+        name: 'Invoice Test Service',
+        price: 1000,
+        description: 'TEST_Invoice',
+      });
+    serviceId = svcRes.body.data.id;
   });
+
 
   describe('POST /api/v1/invoice', () => {
     it('should create an invoice with items', async () => {

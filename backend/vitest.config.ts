@@ -7,6 +7,10 @@ export default defineConfig({
     environment: 'node',
     include: ['src/tests/**/*.test.ts'],
     setupFiles: ['src/tests/helpers/setup.ts'],
+    pool: 'forks',
+    fileParallelism: false,  // Run files one at a time
+    hookTimeout: 30000,
+    testTimeout: 30000,
   },
   resolve: {
     alias: {
