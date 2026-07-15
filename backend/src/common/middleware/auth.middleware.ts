@@ -11,7 +11,7 @@ export const authMiddleware = (
   next: NextFunction,
 ): void => {
   // 1. Check cookie first
-  let token = req.cookies?.["twipra-token"];
+  let token = req.cookies?.["invoice-token"];
 
   // 2. Fallback to Authorization header
   if (!token) {

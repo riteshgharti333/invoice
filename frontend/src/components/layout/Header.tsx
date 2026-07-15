@@ -1,15 +1,39 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { TbSearch, TbBell, TbPlus, TbUser, TbLogin, TbSettings, TbHelp, TbLogout, TbX } from 'react-icons/tb';
-import { LoginPanel } from './LoginPanel';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  TbSearch,
+  TbBell,
+  TbPlus,
+  TbUser,
+  TbLogin,
+  TbSettings,
+  TbHelp,
+  TbLogout,
+  TbX,
+} from "react-icons/tb";
+import { LoginPanel } from "./LoginPanel";
+import { useAuthStore } from "../../store/authStore";
+import { toast } from "../../utils/toast";
 
 export function Header() {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
-  const isLoggedIn = false;
+  const { user, isAuthenticated, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      const response = await logout();
+      console.log(response)
+      toast.success(response.message || "Logged out successfully");
+      setShowUserMenu(false);
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Logout failed");
+    }
+  };
 
   return (
     <>
@@ -42,35 +66,50 @@ export function Header() {
               <span className="hidden sm:block">New Invoice</span>
             </button>
 
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-sm font-bold hover:opacity-90 transition-all"
                 >
-                  JD
+                  {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </button>
 
                 <AnimatePresence>
                   {showUserMenu && (
                     <>
-                      <div className="fixed inset-0 z-10" onClick={() => setShowUserMenu(false)} />
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setShowUserMenu(false)}
+                      />
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: -8 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                        transition={{ duration: 0.15, ease: 'easeOut' }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
                         className="absolute right-0 top-12 w-56 bg-white rounded-2xl border border-border shadow-xl z-20 py-2"
                       >
                         <div className="px-4 py-3 border-b border-border-light">
-                          <p className="text-sm font-medium text-text-primary">John Doe</p>
-                          <p className="text-xs text-text-muted">john@example.com</p>
+                          <p className="text-sm font-medium text-text-primary">
+                            {user?.name}
+                          </p>
+                          <p className="text-xs text-text-muted">
+                            {user?.email}
+                          </p>
                         </div>
                         <div className="py-1">
                           {[
-                            { icon: TbUser, label: 'Profile', path: '/profile' },
-                            { icon: TbSettings, label: 'Settings', path: '/settings' },
-                            { icon: TbHelp, label: 'Help', path: '#' },
+                            {
+                              icon: TbUser,
+                              label: "Profile",
+                              path: "/profile",
+                            },
+                            {
+                              icon: TbSettings,
+                              label: "Settings",
+                              path: "/settings",
+                            },
+                            { icon: TbHelp, label: "Help", path: "#" },
                           ].map((item) => (
                             <button
                               key={item.label}
@@ -86,7 +125,10 @@ export function Header() {
                           ))}
                         </div>
                         <div className="py-1 border-t border-border-light">
-                          <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger-light transition-colors">
+                          <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger hover:bg-danger-light transition-colors"
+                          >
                             <TbLogout size={16} />
                             Logout
                           </button>
@@ -113,7 +155,6 @@ export function Header() {
       <AnimatePresence>
         {showLogin && (
           <div className="fixed inset-0 z-50 flex">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -123,15 +164,13 @@ export function Header() {
               onClick={() => setShowLogin(false)}
             />
 
-            {/* Panel */}
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col"
             >
-              {/* Header */}
               <div className="flex items-center justify-between px-6 h-16 border-b border-border shrink-0">
                 <h2 className="text-lg font-bold text-text-primary">Sign In</h2>
                 <button
@@ -142,7 +181,6 @@ export function Header() {
                 </button>
               </div>
 
-              {/* Content */}
               <div className="flex-1 overflow-y-auto p-6">
                 <LoginPanel onSuccess={() => setShowLogin(false)} />
               </div>

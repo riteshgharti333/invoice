@@ -1,30 +1,34 @@
-import { useState } from 'react';
-import { TbMail, TbLock, TbEye, TbEyeOff, TbSparkles } from 'react-icons/tb';
+import { useState } from "react";
+import { TbMail, TbLock, TbEye, TbEyeOff, TbSparkles } from "react-icons/tb";
+import { useAuthStore } from "../../store/authStore";
+import { toast } from "../../utils/toast";
 
 interface LoginPanelProps {
   onSuccess: () => void;
 }
 
 export function LoginPanel({ onSuccess }: LoginPanelProps) {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const login = useAuthStore((state) => state.login);
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -34,20 +38,26 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await login(formData.email, formData.password);
+      toast.success(response.message || "Welcome Back");
       onSuccess();
-    }, 1000);
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Login failed";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,38 +68,47 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
           <TbSparkles size={28} className="text-white" />
         </div>
         <h1 className="text-2xl font-bold text-text-primary">Welcome back</h1>
-        <p className="text-text-secondary text-sm mt-2">Sign in to your account</p>
+        <p className="text-text-secondary text-sm mt-2">
+          Sign in to your account
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">Email</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">
+            Email
+          </label>
           <div className="relative">
             <TbMail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              autoComplete="email"
+              onChange={(e) => handleChange("email", e.target.value)}
               placeholder="you@example.com"
               className={`w-full pl-10 pr-4 py-3 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
-                errors.email ? 'border-danger' : 'border-border'
+                errors.email ? "border-danger" : "border-border"
               }`}
             />
           </div>
-          {errors.email && <p className="text-danger text-xs mt-1.5">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-danger text-xs mt-1.5">{errors.email}</p>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-1.5">Password</label>
+          <label className="block text-sm font-medium text-text-primary mb-1.5">
+            Password
+          </label>
           <div className="relative">
             <TbLock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               value={formData.password}
-              onChange={(e) => handleChange('password', e.target.value)}
+              onChange={(e) => handleChange("password", e.target.value)}
               placeholder="Enter your password"
               className={`w-full pl-10 pr-12 py-3 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
-                errors.password ? 'border-danger' : 'border-border'
+                errors.password ? "border-danger" : "border-border"
               }`}
             />
             <button
@@ -104,7 +123,9 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
               )}
             </button>
           </div>
-          {errors.password && <p className="text-danger text-xs mt-1.5">{errors.password}</p>}
+          {errors.password && (
+            <p className="text-danger text-xs mt-1.5">{errors.password}</p>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
@@ -117,7 +138,10 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
             />
             <span className="text-sm text-text-secondary">Remember me</span>
           </label>
-          <button type="button" className="text-sm font-medium text-brand hover:underline">
+          <button
+            type="button"
+            className="text-sm font-medium text-brand hover:underline"
+          >
             Forgot password?
           </button>
         </div>
@@ -133,14 +157,16 @@ export function LoginPanel({ onSuccess }: LoginPanelProps) {
               Signing in...
             </>
           ) : (
-            'Sign In'
+            "Sign In"
           )}
         </button>
       </form>
 
       <p className="text-center text-sm text-text-secondary mt-6">
-        Don't have an account?{' '}
-        <button className="font-medium text-brand hover:underline">Sign up</button>
+        Don't have an account?{" "}
+        <button className="font-medium text-brand hover:underline">
+          Sign up
+        </button>
       </p>
     </div>
   );

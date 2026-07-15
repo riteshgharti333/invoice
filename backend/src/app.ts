@@ -19,7 +19,7 @@ app.use(requestIdMiddleware);
 app.use(requestLogger);
 app.use(cookieParser());
 
-// CORS
+// CORS 
 app.use(
   cors({
     origin: [

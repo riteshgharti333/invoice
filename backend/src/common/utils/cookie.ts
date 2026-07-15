@@ -19,7 +19,7 @@ export function generateToken(payload: JwtPayload): string {
 }
 
 export function setTokenCookie(res: Response, token: string): void {
-  res.cookie("twipra-token", token, {
+  res.cookie("invoice-token", token, {
     httpOnly: true,
     secure: true,
     sameSite: "none",
@@ -29,7 +29,7 @@ export function setTokenCookie(res: Response, token: string): void {
 }
 
 export function clearTokenCookie(res: Response): void {
-  res.cookie("twipra-token", "", {
+  res.cookie("invoice-token", "", {
     httpOnly: true,
     secure: true,
     sameSite: "none",
