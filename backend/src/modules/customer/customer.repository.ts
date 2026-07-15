@@ -45,15 +45,18 @@ export class CustomerRepository {
     });
   }
 
-  async update(id: string, data: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    gstNumber?: string;
-    notes?: string;
-    isActive?: boolean;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      address?: string;
+      gstNumber?: string;
+      notes?: string;
+      isActive?: boolean;
+    },
+  ) {
     return prisma.customer.update({
       where: { id },
       data,
@@ -69,6 +72,34 @@ export class CustomerRepository {
   async count() {
     return prisma.customer.count();
   }
+
+  async search(args: any) {
+    return prisma.customer.findMany({
+      ...args,
+      include: {
+        _count: {
+          select: {
+            quotations: true,
+            invoices: true,
+          },
+        },
+      },
+    });
+  }
+
+  async filter(args: any) {
+  return prisma.customer.findMany({
+    ...args,
+    include: {
+      _count: {
+        select: {
+          quotations: true,
+          invoices: true,
+        },
+      },
+    },
+  });
+}
 }
 
 export const customerRepository = new CustomerRepository();

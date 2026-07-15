@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class PaymentController {
   getAllPayments = asyncHandler(async (_req: Request, res: Response) => {
-    const payments = await paymentService.getAllPayments();
+    const payments = await paymentService.getAllPayments(_req.body);
 
     return apiResponse({
       res,
@@ -83,6 +83,7 @@ class PaymentController {
       data: payment,
     });
   });
+  
 }
 
 export const paymentController = new PaymentController();

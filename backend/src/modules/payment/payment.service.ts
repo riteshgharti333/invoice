@@ -4,6 +4,10 @@ import { invoiceRepository } from "../invoice/invoice.repository";
 import type { CreatePaymentDto, UpdatePaymentDto } from "./payment.types";
 import { HTTP_STATUS } from "../../common/constants/httpStatus";
 import { generateCode } from "../../common/utils/generateCode";
+import { Pagination } from "../../common/utils/pagination";
+import { Payment } from "@prisma/client";
+import { prisma } from "../../database/client";
+
 
 export class PaymentService {
   async generatePaymentNumber(): Promise<string> {
@@ -18,8 +22,14 @@ export class PaymentService {
     return code;
   }
 
-  async getAllPayments() {
-    return paymentRepository.findMany();
+  async getAllPayments(query: { cursor?: string; limit?: string }) {
+    return Pagination.paginate<Payment>(
+      (args) => prisma.payment.findMany(args),
+      {
+        cursor: query.cursor,
+        limit: query.limit ? parseInt(query.limit) : undefined
+      }
+    );
   }
 
   async getPaymentById(id: string) {
@@ -51,7 +61,7 @@ export class PaymentService {
 
     // Check if payment amount exceeds remaining balance
     const totalPaid = await paymentRepository.getTotalPaidForInvoice(data.invoiceId);
-    const remainingBalance = Number(invoice.total) - totalPaid;
+    const remainingBalance = Number(invoice.total) - Number(totalPaid);
 
     if (data.amount > remainingBalance) {
       throw new AppError({
@@ -74,7 +84,7 @@ export class PaymentService {
     });
 
     // Update invoice status based on total paid
-    const newTotalPaid = totalPaid + data.amount;
+    const newTotalPaid = Number(totalPaid) + Number(data.amount);
     const invoiceTotal = Number(invoice.total);
 
     if (newTotalPaid >= invoiceTotal) {
@@ -95,7 +105,7 @@ export class PaymentService {
       if (invoice) {
         const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
         const oldAmount = Number(payment.amount);
-        const newTotalPaid = totalPaid - oldAmount + data.amount;
+        const newTotalPaid = Number(totalPaid) - oldAmount + data.amount;
         const remainingBalance = Number(invoice.total) - newTotalPaid + data.amount;
 
         if (data.amount > remainingBalance) {
@@ -126,10 +136,11 @@ export class PaymentService {
     if (invoice) {
       const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
       const invoiceTotal = Number(invoice.total);
+      const totalPaidNumber = Number(totalPaid);
 
-      if (totalPaid >= invoiceTotal) {
+      if (totalPaidNumber >= invoiceTotal) {
         await invoiceRepository.update(invoice.id, { status: "PAID" });
-      } else if (totalPaid > 0) {
+      } else if (totalPaidNumber > 0) {
         await invoiceRepository.update(invoice.id, { status: "PARTIALLY_PAID" });
       } else {
         await invoiceRepository.update(invoice.id, { status: "SENT" });
@@ -148,10 +159,11 @@ export class PaymentService {
       if (invoice) {
         const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
         const invoiceTotal = Number(invoice.total);
+        const totalPaidNumber = Number(totalPaid);
 
-        if (totalPaid >= invoiceTotal) {
+        if (totalPaidNumber >= invoiceTotal) {
           await invoiceRepository.update(invoice.id, { status: "PAID" });
-        } else if (totalPaid > 0) {
+        } else if (totalPaidNumber > 0) {
           await invoiceRepository.update(invoice.id, { status: "PARTIALLY_PAID" });
         } else {
           await invoiceRepository.update(invoice.id, { status: "SENT" });
@@ -161,6 +173,8 @@ export class PaymentService {
 
     return updatedPayment;
   }
+
+  
 }
 
 export const paymentService = new PaymentService();

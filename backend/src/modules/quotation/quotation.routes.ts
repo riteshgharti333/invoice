@@ -10,7 +10,10 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get("/", authorize("ADMIN"), quotationController.getAllQuotations);
+router.get("/search", authorize("ADMIN"), quotationController.searchQuotations);
+router.get("/filter", authorize("ADMIN"), quotationController.filterQuotations);
 router.get("/:id", authorize("ADMIN"), quotationController.getQuotationById);
+
 router.post("/", authorize("ADMIN"), validate(createQuotationSchema), quotationController.createQuotation);
 router.put("/:id", authorize("ADMIN"), validate(updateQuotationSchema), quotationController.updateQuotation);
 router.delete("/:id", authorize("ADMIN"), quotationController.deleteQuotation);

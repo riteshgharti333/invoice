@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class CategoryController {
   getAllCategories = asyncHandler(async (_req: Request, res: Response) => {
-    const categories = await categoryService.getAllCategories();
+    const categories = await categoryService.getAllCategories(_req.body);
 
     return apiResponse({
       res,
@@ -41,7 +41,10 @@ class CategoryController {
   updateCategory = asyncHandler(async (req: Request, res: Response) => {
     const categoryId = req.params.id as string;
     const updateData = req.body;
-    const category = await categoryService.updateCategory(categoryId, updateData);
+    const category = await categoryService.updateCategory(
+      categoryId,
+      updateData,
+    );
 
     return apiResponse({
       res,
@@ -60,6 +63,26 @@ class CategoryController {
       data: null,
     });
   });
+
+  searchCategories = asyncHandler(async (req: Request, res: Response) => {
+    const categories = await categoryService.searchCategories(req.query);
+
+    return apiResponse({
+      res,
+      message: "Categories found successfully",
+      data: categories,
+    });
+  });
+
+  filterCategories = asyncHandler(async (req: Request, res: Response) => {
+  const categories = await categoryService.filterCategories(req.query);
+
+  return apiResponse({
+    res,
+    message: "Categories filtered successfully",
+    data: categories,
+  });
+});
 }
 
 export const categoryController = new CategoryController();

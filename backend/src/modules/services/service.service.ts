@@ -3,22 +3,33 @@ import { serviceRepository } from "./service.repository";
 import type { CreateServiceDto, UpdateServiceDto } from "./service.types";
 import { HTTP_STATUS } from "../../common/constants/httpStatus";
 import { generateCode } from "../../common/utils/generateCode";
+import { prisma } from "../../database/client";
+import { Pagination } from "../../common/utils/pagination";
+import { Service } from "@prisma/client";
+import { Search } from "../../common/utils/search";
+import { Filter } from "../../common/utils/filter";
 
 export class ServiceService {
   async generateServiceCode(): Promise<string> {
     const count = await serviceRepository.count();
     const code = generateCode("SRV", count);
-    
+
     const existingService = await serviceRepository.findByServiceCode(code);
     if (existingService) {
       return generateCode("SRV", count + 1);
     }
-    
+
     return code;
   }
 
-  async getAllServices() {
-    return serviceRepository.findMany();
+  async getAllServices(query: { cursor?: string; limit?: string }) {
+    return Pagination.paginate<Service>(
+      (args) => prisma.service.findMany(args),
+      {
+        cursor: query.cursor,
+        limit: query.limit ? parseInt(query.limit) : undefined,
+      },
+    );
   }
 
   async getServiceById(id: string) {
@@ -72,6 +83,36 @@ export class ServiceService {
   async deleteService(id: string) {
     await this.getServiceById(id);
     await serviceRepository.delete(id);
+  }
+  async searchServices(query: { q?: string; cursor?: string; limit?: string }) {
+    return Search.search<Service>((args) => serviceRepository.search(args), {
+      searchTerm: query.q || "",
+      exactFields: ["serviceCode"],
+      containsFields: ["name"],
+      cursor: query.cursor,
+      limit: query.limit,
+    });
+  }
+  async filterServices(query: {
+    categoryName?: string;
+    createdAtFrom?: string;
+    createdAtTo?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Filter.filter<Service>((args) => serviceRepository.filter(args), {
+      filters: {
+        createdAtFrom: query.createdAtFrom,
+        createdAtTo: query.createdAtTo,
+      },
+      nestedFilters: {
+        category: {
+          nameContains: query.categoryName,
+        },
+      },
+      cursor: query.cursor,
+      limit: query.limit,
+    });
   }
 }
 

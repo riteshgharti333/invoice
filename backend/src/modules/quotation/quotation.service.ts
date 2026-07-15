@@ -4,6 +4,11 @@ import type { CreateQuotationDto, UpdateQuotationDto } from "./quotation.types";
 import { HTTP_STATUS } from "../../common/constants/httpStatus";
 import { generateCode } from "../../common/utils/generateCode";
 import { FinancialCalculations } from "../../common/calculations/financial-calculations";
+import { Pagination } from "../../common/utils/pagination";
+import { Quotation, QuotationStatus } from "@prisma/client";
+import { prisma } from "../../database/client";
+import { Search } from "../../common/utils/search";
+import { Filter } from "../../common/utils/filter";
 
 export class QuotationService {
   async generateQuotationNumber(): Promise<string> {
@@ -19,8 +24,28 @@ export class QuotationService {
     return code;
   }
 
-  async getAllQuotations() {
-    return quotationRepository.findMany();
+  private async autoUpdateExpiredQuotations() {
+    const quotations = await prisma.quotation.findMany({
+      where: {
+        status: { notIn: ["APPROVED", "REJECTED", "EXPIRED"] },
+        expiryDate: { lt: new Date() },
+      },
+    });
+
+    for (const quotation of quotations) {
+      await quotationRepository.update(quotation.id, { status: "EXPIRED" });
+    }
+  }
+
+  async getAllQuotations(query: { cursor?: string; limit?: string }) {
+    await this.autoUpdateExpiredQuotations();
+    return Pagination.paginate<Quotation>(
+      (args) => prisma.quotation.findMany(args),
+      {
+        cursor: query.cursor,
+        limit: query.limit ? parseInt(query.limit) : undefined,
+      },
+    );
   }
 
   async getQuotationById(id: string) {
@@ -126,6 +151,51 @@ export class QuotationService {
   async updateStatus(id: string, status: string) {
     await this.getQuotationById(id);
     return quotationRepository.update(id, { status });
+  }
+  async searchQuotations(query: {
+    q?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Search.search<Quotation>(
+      (args) => quotationRepository.search(args),
+      {
+        searchTerm: query.q || "",
+        exactFields: ["quotationNumber"],
+        nestedFields: {
+          customer: ["name", "phone"],
+        },
+        cursor: query.cursor,
+        limit: query.limit,
+      },
+    );
+  }
+
+  async filterQuotations(query: {
+    status?: string;
+    issueDateFrom?: string;
+    issueDateTo?: string;
+    totalFrom?: string;
+    totalTo?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Filter.filter<Quotation>(
+      (args) => quotationRepository.filter(args),
+      {
+        filters: {
+          status: query.status
+            ? (query.status.toUpperCase() as QuotationStatus)
+            : undefined,
+          issueDateFrom: query.issueDateFrom,
+          issueDateTo: query.issueDateTo,
+          totalFrom: query.totalFrom,
+          totalTo: query.totalTo,
+        },
+        cursor: query.cursor,
+        limit: query.limit,
+      },
+    );
   }
 }
 

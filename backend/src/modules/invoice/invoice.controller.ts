@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class InvoiceController {
   getAllInvoices = asyncHandler(async (_req: Request, res: Response) => {
-    const invoices = await invoiceService.getAllInvoices();
+    const invoices = await invoiceService.getAllInvoices(_req.query);
 
     return apiResponse({
       res,
@@ -73,6 +73,28 @@ class InvoiceController {
       data: invoice,
     });
   });
+
+
+  searchInvoices = asyncHandler(async (req: Request, res: Response) => {
+  const invoices = await invoiceService.searchInvoices(req.query);
+
+  return apiResponse({
+    res,
+    message: "Invoices found successfully",
+    data: invoices,
+  });
+});
+
+filterInvoices = asyncHandler(async (req: Request, res: Response) => {
+  const invoices = await invoiceService.filterInvoices(req.query);
+
+  return apiResponse({
+    res,
+    message: "Invoices filtered successfully",
+    data: invoices,
+  });
+});
 }
+
 
 export const invoiceController = new InvoiceController();

@@ -27,19 +27,19 @@ export class CategoryRepository {
     });
   }
 
-  async create(data: {
-    name: string;
-    description?: string;
-  }) {
+  async create(data: { name: string; description?: string }) {
     return prisma.category.create({
       data,
     });
   }
 
-  async update(id: string, data: {
-    name?: string;
-    description?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      name?: string;
+      description?: string;
+    },
+  ) {
     return prisma.category.update({
       where: { id },
       data,
@@ -51,6 +51,30 @@ export class CategoryRepository {
       where: { id },
     });
   }
+
+  async search(args: any) {
+    return prisma.category.findMany({
+      ...args,
+      include: {
+        _count: {
+          select: { services: true },
+        },
+      },
+    });
+  }
+
+  async filter(args: any) {
+  return prisma.category.findMany({
+    ...args,
+    include: {
+      _count: {
+        select: {
+          services: true,
+        },
+      },
+    },
+  });
+}
 }
 
 export const categoryRepository = new CategoryRepository();

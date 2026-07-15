@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class CustomerController {
   getAllCustomers = asyncHandler(async (_req: Request, res: Response) => {
-    const customers = await customerService.getAllCustomers();
+    const customers = await customerService.getAllCustomers(_req.query);
 
     return apiResponse({
       res,
@@ -41,7 +41,10 @@ class CustomerController {
   updateCustomer = asyncHandler(async (req: Request, res: Response) => {
     const customerId = req.params.id as string;
     const updateData = req.body;
-    const customer = await customerService.updateCustomer(customerId, updateData);
+    const customer = await customerService.updateCustomer(
+      customerId,
+      updateData,
+    );
 
     return apiResponse({
       res,
@@ -60,6 +63,25 @@ class CustomerController {
       data: null,
     });
   });
+
+  searchCustomers = asyncHandler(async (req: Request, res: Response) => {
+    const customers = await customerService.searchCustomers(req.query);
+
+    return apiResponse({
+      res,
+      message: "Customers found successfully",
+      data: customers,
+    });
+  });
+  filterCustomers = asyncHandler(async (req: Request, res: Response) => {
+  const customers = await customerService.filterCustomers(req.query);
+
+  return apiResponse({
+    res,
+    message: "Customers filtered successfully",
+    data: customers,
+  });
+});
 }
 
 export const customerController = new CustomerController();

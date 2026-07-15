@@ -108,27 +108,30 @@ export class QuotationRepository {
     });
   }
 
-  async update(id: string, data: {
-    customerId?: string;
-    issueDate?: Date;
-    expiryDate?: Date;
-    subtotal?: number;
-    discount?: number;
-    tax?: number;
-    total?: number;
-    status?: string;
-    notes?: string;
-    termsConditions?: string;
-    items?: {
-      serviceId: string;
-      description?: string;
-      quantity: number;
-      unitPrice: number;
-      taxRate: number;
-      discount: number;
-      total: number;
-    }[];
-  }) {
+  async update(
+    id: string,
+    data: {
+      customerId?: string;
+      issueDate?: Date;
+      expiryDate?: Date;
+      subtotal?: number;
+      discount?: number;
+      tax?: number;
+      total?: number;
+      status?: string;
+      notes?: string;
+      termsConditions?: string;
+      items?: {
+        serviceId: string;
+        description?: string;
+        quantity: number;
+        unitPrice: number;
+        taxRate: number;
+        discount: number;
+        total: number;
+      }[];
+    },
+  ) {
     // If items provided, delete old items and create new ones
     if (data.items) {
       await prisma.quotationItem.deleteMany({
@@ -182,6 +185,50 @@ export class QuotationRepository {
   async count() {
     return prisma.quotation.count();
   }
+
+  async search(args: any) {
+    return prisma.quotation.findMany({
+      ...args,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        items: true,
+        _count: {
+          select: {
+            invoices: true,
+          },
+        },
+      },
+    });
+  }
+
+  async filter(args: any) {
+  return prisma.quotation.findMany({
+    ...args,
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+      items: true,
+      _count: {
+        select: {
+          invoices: true,
+        },
+      },
+    },
+  });
+}
 }
 
 export const quotationRepository = new QuotationRepository();

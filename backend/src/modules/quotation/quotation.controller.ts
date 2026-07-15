@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class QuotationController {
   getAllQuotations = asyncHandler(async (_req: Request, res: Response) => {
-    const quotations = await quotationService.getAllQuotations();
+    const quotations = await quotationService.getAllQuotations(_req.body);
 
     return apiResponse({
       res,
@@ -73,6 +73,28 @@ class QuotationController {
       data: quotation,
     });
   });
+
+
+  searchQuotations = asyncHandler(async (req: Request, res: Response) => {
+  const quotations = await quotationService.searchQuotations(req.query);
+
+  return apiResponse({
+    res,
+    message: "Quotations found successfully",
+    data: quotations,
+  });
+});
+
+
+filterQuotations = asyncHandler(async (req: Request, res: Response) => {
+  const quotations = await quotationService.filterQuotations(req.query);
+
+  return apiResponse({
+    res,
+    message: "Quotations filtered successfully",
+    data: quotations,
+  });
+});
 }
 
 export const quotationController = new QuotationController();

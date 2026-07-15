@@ -4,10 +4,13 @@
   "private": true,
   "workspaces": [
     "backend",
+    "frontend",
     "packages/shared"
   ],
   "scripts": {
     "dev:backend": "npm run dev --workspace=backend",
+    "dev:fontend": "npm run dev --workspace=frontend",
+
     "build": "npm run build --workspaces"
   },
   "devDependencies": {

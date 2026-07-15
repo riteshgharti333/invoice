@@ -11,18 +11,14 @@ const router = Router();
 router.use(authMiddleware);
 
 // Get all customers
-router.get(
-  "/",
-  authorize("ADMIN"),
-  customerController.getAllCustomers,
-);
+router.get("/", authorize("ADMIN"), customerController.getAllCustomers);
+
+router.get("/search", authorize("ADMIN"), customerController.searchCustomers);
+
+router.get("/filter", authorize("ADMIN"), customerController.filterCustomers);
 
 // Get single customer
-router.get(
-  "/:id",
-  authorize("ADMIN"),
-  customerController.getCustomerById,
-);
+router.get("/:id", authorize("ADMIN"), customerController.getCustomerById);
 
 // Create customer
 router.post(
@@ -41,10 +37,6 @@ router.put(
 );
 
 // Delete customer
-router.delete(
-  "/:id",
-  authorize("ADMIN"),
-  customerController.deleteCustomer,
-);
+router.delete("/:id", authorize("ADMIN"), customerController.deleteCustomer);
 
 export { router as customerRouter };

@@ -2,6 +2,7 @@ import { prisma } from "../../database/client";
 
 export class InvoiceRepository {
   async findMany() {
+    
     return prisma.invoice.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -193,6 +194,53 @@ export class InvoiceRepository {
   async count() {
     return prisma.invoice.count();
   }
+
+  async search(args: any) {
+  return prisma.invoice.findMany({
+    ...args,
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+      items: true,
+      quotation: {
+        select: {
+          id: true,
+          quotationNumber: true,
+        },
+      },
+    },
+  });
+}
+
+async filter(args: any) {
+  return prisma.invoice.findMany({
+    ...args,
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+        },
+      },
+      quotation: {
+        select: {
+          id: true,
+          quotationNumber: true,
+        },
+      },
+      items: true,
+      payments: true,
+    },
+  });
+}
 }
 
 export const invoiceRepository = new InvoiceRepository();

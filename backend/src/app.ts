@@ -9,8 +9,8 @@ import routes from "./routes";
 import { requestLogger } from "./common/middleware/requestLogger.middleware";
 import { requestIdMiddleware } from "./common/middleware/requestId.middleware";
 import cookieParser from "cookie-parser";
-
-const app = express();
+    
+const app = express(); 
 
 // Security
 app.use(helmet());

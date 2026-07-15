@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class ServiceController {
   getAllServices = asyncHandler(async (_req: Request, res: Response) => {
-    const services = await serviceService.getAllServices();
+    const services = await serviceService.getAllServices(_req.body);
 
     return apiResponse({
       res,
@@ -60,6 +60,26 @@ class ServiceController {
       data: null,
     });
   });
+  searchServices = asyncHandler(async (req: Request, res: Response) => {
+  const services = await serviceService.searchServices(req.query);
+
+  return apiResponse({
+    res,
+    message: "Services found successfully",
+    data: services,
+  });
+});
+
+
+filterServices = asyncHandler(async (req: Request, res: Response) => {
+  const services = await serviceService.filterServices(req.query);
+
+  return apiResponse({
+    res,
+    message: "Services filtered successfully",
+    data: services,
+  });
+});
 }
 
 export const serviceController = new ServiceController();

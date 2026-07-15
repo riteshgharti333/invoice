@@ -74,6 +74,42 @@ export class ServiceRepository {
   async count() {
     return prisma.service.count();
   }
+
+  async search(args: any) {
+  return prisma.service.findMany({
+    ...args,
+    include: {
+      category: true,
+      _count: {
+        select: {
+          quotationItems: true,
+          invoiceItems: true,
+        },
+      },
+    },
+  });
+  
+}
+
+async filter(args: any) {
+  return prisma.service.findMany({
+    ...args,
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      _count: {
+        select: {
+          quotationItems: true,
+          invoiceItems: true,
+        },
+      },
+    },
+  });
+}
 }
 
 export const serviceRepository = new ServiceRepository();
