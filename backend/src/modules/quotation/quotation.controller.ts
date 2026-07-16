@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class QuotationController {
   getAllQuotations = asyncHandler(async (_req: Request, res: Response) => {
-    const quotations = await quotationService.getAllQuotations(_req.body);
+    const quotations = await quotationService.getAllQuotations(_req.query);
 
     return apiResponse({
       res,

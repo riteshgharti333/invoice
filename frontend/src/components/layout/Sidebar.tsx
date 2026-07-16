@@ -1,39 +1,41 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  TbLayoutDashboard, 
-  TbFileInvoice, 
-  TbFileText, 
-  TbUsers, 
-  TbBriefcase, 
-  TbSettings, 
-  TbChevronLeft, 
-  TbChevronRight, 
-  TbSparkles 
-} from 'react-icons/tb';
-import { SidebarItem } from './SidebarItem';
-import { MdCategory } from 'react-icons/md';
-
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  TbLayoutDashboard,
+  TbFileInvoice,
+  TbFileText,
+  TbUsers,
+  TbBriefcase,
+  TbSettings,
+  TbChevronLeft,
+  TbChevronRight,
+  TbSparkles,
+  TbCash,
+} from "react-icons/tb";
+import { SidebarItem } from "./SidebarItem";
+import { MdCategory } from "react-icons/md";
+import { useAuthStore } from "../../store/authStore";
 
 const navItems = [
-  { icon: TbLayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: TbFileInvoice, label: 'Invoices', path: '/invoices', badge: '12' },
-  { icon: TbFileText, label: 'Quotations', path: '/quotations', badge: '5' },
-  { icon: TbUsers, label: 'Customers', path: '/customers' },
-  { icon: TbBriefcase, label: 'Services', path: '/services' },
-  { icon: MdCategory, label: 'Categories', path: '/categories' },
-
-  { icon: TbSettings, label: 'Settings', path: '/settings' },
+  { icon: TbLayoutDashboard, label: "Dashboard", path: "/" },
+  { icon: TbFileInvoice, label: "Invoices", path: "/invoices", badge: "12" },
+  { icon: TbFileText, label: "Quotations", path: "/quotations", badge: "5" },
+  { icon: TbUsers, label: "Customers", path: "/customers" },
+  { icon: TbBriefcase, label: "Services", path: "/services" },
+  { icon: MdCategory, label: "Categories", path: "/categories" },
+  { icon: TbCash, label: "Payments", path: "/payments" },
+  { icon: TbSettings, label: "Settings", path: "/settings" },
 ];
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { user } = useAuthStore();
 
   return (
     <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 80 : 260 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="fixed left-0 top-0 h-full bg-white border-r border-border z-40 flex flex-col"
     >
       {/* Logo */}
@@ -55,12 +57,16 @@ export function Sidebar() {
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-1.5 hover:bg-surface-hover rounded-lg transition-colors"
         >
-          {isCollapsed ? <TbChevronRight size={18} /> : <TbChevronLeft size={18} />}
+          {isCollapsed ? (
+            <TbChevronRight size={18} />
+          ) : (
+            <TbChevronLeft size={18} />
+          )}
         </button>
       </div>
 
@@ -82,12 +88,16 @@ export function Sidebar() {
       <div className="p-3 border-t border-border">
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0">
-            JD
+            {user?.name?.charAt(0)?.toUpperCase() || "U"}
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-text-primary truncate">John Doe</p>
-              <p className="text-xs text-text-muted truncate">john@example.com</p>
+              <p className="text-sm font-medium text-text-primary truncate">
+                {user?.name || "User"}
+              </p>
+              <p className="text-xs text-text-muted truncate">
+                {user?.email || "user@example.com"}
+              </p>
             </div>
           )}
         </div>

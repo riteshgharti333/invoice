@@ -18,6 +18,9 @@ import UpdateCategory from "./pages/UpdatePage/UpdateCategory";
 import Profile from "./pages/auth/Profile";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
+import Payments from "./pages/TablePage/Payments";
+import NewPayment from "./pages/NewPage/NewPayment";
+import UpdatePayment from "./pages/UpdatePage/UpdatePayment";
 
 function App() {
   const { checkAuth, isLoading } = useAuthStore();
@@ -44,18 +47,23 @@ function App() {
           <Route path="/customers" element={<Customers />} />
           <Route path="/services" element={<Services />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/payments" element={<Payments />} />
           // NEW
           <Route path="/customer/new-customer" element={<NewCustomer />} />
           <Route path="/services/new-service" element={<NewService />} />
           <Route path="/category/new-category" element={<NewCategory />} />
           <Route path="/invoice/new-invoice" element={<NewInvoice />} />
           <Route path="/quotation/new-quotation" element={<NewInvoice />} />
+          <Route path="/payment/new-payment" element={<NewPayment />} />
+
           //UPDATE
           <Route path="/invoice/:id" element={<UpdateInvoice />} />
           <Route path="/quotation/:id" element={<UpdateQuotation />} />
           <Route path="/customer/:id" element={<UpdateCustomer />} />
           <Route path="/service/:id" element={<UpdateService />} />
           <Route path="/category/:id" element={<UpdateCategory />} />
+          <Route path="/payment/:id" element={<UpdatePayment />} />
+
           //PROFILE
           <Route path="/profile" element={<Profile />} />
         </Routes>

@@ -6,7 +6,7 @@ import { categoryController } from "./category.controller";
 import { createCategorySchema, updateCategorySchema } from "@invoice/shared";
 
 const router = Router();
-
+ 
 router.use(authMiddleware);
 
 router.get("/", authorize("ADMIN"), categoryController.getAllCategories);

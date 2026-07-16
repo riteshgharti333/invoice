@@ -115,23 +115,20 @@ export class CustomerService {
   }
 
   async filterCustomers(query: {
-  createdAtFrom?: string;
-  createdAtTo?: string;
-  cursor?: string;
-  limit?: string;
-}) {
-  return Filter.filter<Customer>(
-    (args) => customerRepository.filter(args),
-    {
+    createdAtFrom?: string;
+    createdAtTo?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Filter.filter<Customer>((args) => customerRepository.filter(args), {
       filters: {
         createdAtFrom: query.createdAtFrom,
         createdAtTo: query.createdAtTo,
       },
       cursor: query.cursor,
       limit: query.limit,
-    }
-  );
-}
+    });
+  }
 }
 
 export const customerService = new CustomerService();

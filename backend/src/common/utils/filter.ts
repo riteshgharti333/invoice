@@ -1,5 +1,5 @@
 // src/common/utils/filter.ts
-import { Pagination } from './pagination';
+import { Pagination } from "./pagination";
 
 export class Filter {
   static async filter<T extends { id: string }>(
@@ -9,7 +9,7 @@ export class Filter {
       nestedFilters?: Record<string, Record<string, any>>;
       cursor?: string;
       limit?: string;
-    }
+    },
   ) {
     const where: any = {
       AND: [],
@@ -17,28 +17,36 @@ export class Filter {
 
     // Normal filters
     Object.entries(params.filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== '' && value !== null) {
+      if (value !== undefined && value !== "" && value !== null) {
         // Handle date range
-        if (key.endsWith('From') || key.endsWith('To')) {
-          const isDateField = key.includes('Date');
-          const suffix = isDateField ? 'Date' : '';
-          const fieldName = key.replace(/From|To/, '');
+        // Handle date range
+        if (key.endsWith("From") || key.endsWith("To")) {
+          // Check if key contains 'Date' OR 'createdAt' or 'updatedAt' etc.
+          const isDateField =
+            key.includes("Date") ||
+            key.includes("createdAt") ||
+            key.includes("updatedAt") ||
+            key.includes("dueDate") ||
+            key.includes("issueDate") ||
+            key.includes("expiryDate");
+
+          const fieldName = key.replace(/From|To/, "");
           const existingFilter = where.AND.find((f: any) => f[fieldName]);
           const rangeFilter = existingFilter ? existingFilter[fieldName] : {};
-          
-          if (key.endsWith('From')) {
+
+          if (key.endsWith("From")) {
             rangeFilter.gte = isDateField ? new Date(value) : parseFloat(value);
           } else {
             rangeFilter.lte = isDateField ? new Date(value) : parseFloat(value);
           }
-          
+
           if (!existingFilter) {
             where.AND.push({ [fieldName]: rangeFilter });
           }
         }
         // Handle boolean
-        else if (value === 'true' || value === 'false') {
-          where.AND.push({ [key]: value === 'true' });
+        else if (value === "true" || value === "false") {
+          where.AND.push({ [key]: value === "true" });
         }
         // Handle normal fields
         else {
@@ -51,18 +59,21 @@ export class Filter {
     if (params.nestedFilters) {
       Object.entries(params.nestedFilters).forEach(([relation, fields]) => {
         const relationFilter: any = {};
-        
+
         Object.entries(fields).forEach(([field, value]) => {
-          if (value !== undefined && value !== '' && value !== null) {
-            if (field.endsWith('Contains')) {
-              const actualField = field.replace('Contains', '');
-              relationFilter[actualField] = { contains: value, mode: 'insensitive' };
+          if (value !== undefined && value !== "" && value !== null) {
+            if (field.endsWith("Contains")) {
+              const actualField = field.replace("Contains", "");
+              relationFilter[actualField] = {
+                contains: value,
+                mode: "insensitive",
+              };
             } else {
               relationFilter[field] = value;
             }
           }
         });
-        
+
         if (Object.keys(relationFilter).length > 0) {
           where.AND.push({ [relation]: relationFilter });
         }
@@ -75,8 +86,8 @@ export class Filter {
       (args) => findMany({ ...args, where: finalWhere }),
       {
         cursor: params.cursor,
-        limit: params.limit ? parseInt(params.limit) : undefined
-      }
+        limit: params.limit ? parseInt(params.limit) : undefined,
+      },
     );
   }
 }

@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class ServiceController {
   getAllServices = asyncHandler(async (_req: Request, res: Response) => {
-    const services = await serviceService.getAllServices(_req.body);
+    const services = await serviceService.getAllServices(_req.query);
 
     return apiResponse({
       res,

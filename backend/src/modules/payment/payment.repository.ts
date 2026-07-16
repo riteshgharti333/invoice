@@ -121,6 +121,54 @@ export class PaymentRepository {
     });
     return result._sum.amount || 0;
   }
+
+
+
+  async search(args: any) {
+  return prisma.payment.findMany({
+    ...args,
+    include: {
+      invoice: {
+        select: {
+          id: true,
+          invoiceNumber: true,
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      },
+    },
+  });
 }
+
+async filter(args: any) {
+  return prisma.payment.findMany({
+    ...args,
+    include: {
+      invoice: {
+        select: {
+          id: true,
+          invoiceNumber: true,
+          customer: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      },
+    },
+  });
+}
+}
+
+
 
 export const paymentRepository = new PaymentRepository();

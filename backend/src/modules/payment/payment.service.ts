@@ -7,28 +7,44 @@ import { generateCode } from "../../common/utils/generateCode";
 import { Pagination } from "../../common/utils/pagination";
 import { Payment } from "@prisma/client";
 import { prisma } from "../../database/client";
-
+import { Filter } from "../../common/utils/filter";
+import { Search } from "../../common/utils/search";
 
 export class PaymentService {
   async generatePaymentNumber(): Promise<string> {
     const count = await paymentRepository.count();
     const code = generateCode("PAY", count);
-    
+
     const existingPayment = await paymentRepository.findByPaymentNumber(code);
     if (existingPayment) {
       return generateCode("PAY", count + 1);
     }
-    
+
     return code;
   }
 
   async getAllPayments(query: { cursor?: string; limit?: string }) {
     return Pagination.paginate<Payment>(
-      (args) => prisma.payment.findMany(args),
+      (args) =>
+        prisma.payment.findMany({
+          ...args,
+          include: {
+            invoice: {
+              select: {
+                invoiceNumber: true,
+                customer: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
       {
         cursor: query.cursor,
-        limit: query.limit ? parseInt(query.limit) : undefined
-      }
+        limit: query.limit ? parseInt(query.limit) : undefined,
+      },
     );
   }
 
@@ -60,7 +76,9 @@ export class PaymentService {
     }
 
     // Check if payment amount exceeds remaining balance
-    const totalPaid = await paymentRepository.getTotalPaidForInvoice(data.invoiceId);
+    const totalPaid = await paymentRepository.getTotalPaidForInvoice(
+      data.invoiceId,
+    );
     const remainingBalance = Number(invoice.total) - Number(totalPaid);
 
     if (data.amount > remainingBalance) {
@@ -103,10 +121,13 @@ export class PaymentService {
     if (data.amount) {
       const invoice = await invoiceRepository.findById(payment.invoiceId);
       if (invoice) {
-        const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
+        const totalPaid = await paymentRepository.getTotalPaidForInvoice(
+          payment.invoiceId,
+        );
         const oldAmount = Number(payment.amount);
         const newTotalPaid = Number(totalPaid) - oldAmount + data.amount;
-        const remainingBalance = Number(invoice.total) - newTotalPaid + data.amount;
+        const remainingBalance =
+          Number(invoice.total) - newTotalPaid + data.amount;
 
         if (data.amount > remainingBalance) {
           throw new AppError({
@@ -134,14 +155,18 @@ export class PaymentService {
     // Update invoice status after deletion
     const invoice = await invoiceRepository.findById(payment.invoiceId);
     if (invoice) {
-      const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
+      const totalPaid = await paymentRepository.getTotalPaidForInvoice(
+        payment.invoiceId,
+      );
       const invoiceTotal = Number(invoice.total);
       const totalPaidNumber = Number(totalPaid);
 
       if (totalPaidNumber >= invoiceTotal) {
         await invoiceRepository.update(invoice.id, { status: "PAID" });
       } else if (totalPaidNumber > 0) {
-        await invoiceRepository.update(invoice.id, { status: "PARTIALLY_PAID" });
+        await invoiceRepository.update(invoice.id, {
+          status: "PARTIALLY_PAID",
+        });
       } else {
         await invoiceRepository.update(invoice.id, { status: "SENT" });
       }
@@ -150,21 +175,25 @@ export class PaymentService {
 
   async updateStatus(id: string, status: string) {
     const payment = await this.getPaymentById(id);
-    
+
     const updatedPayment = await paymentRepository.update(id, { status });
 
     // If payment is refunded or failed, update invoice status
     if (status === "REFUNDED" || status === "FAILED") {
       const invoice = await invoiceRepository.findById(payment.invoiceId);
       if (invoice) {
-        const totalPaid = await paymentRepository.getTotalPaidForInvoice(payment.invoiceId);
+        const totalPaid = await paymentRepository.getTotalPaidForInvoice(
+          payment.invoiceId,
+        );
         const invoiceTotal = Number(invoice.total);
         const totalPaidNumber = Number(totalPaid);
 
         if (totalPaidNumber >= invoiceTotal) {
           await invoiceRepository.update(invoice.id, { status: "PAID" });
         } else if (totalPaidNumber > 0) {
-          await invoiceRepository.update(invoice.id, { status: "PARTIALLY_PAID" });
+          await invoiceRepository.update(invoice.id, {
+            status: "PARTIALLY_PAID",
+          });
         } else {
           await invoiceRepository.update(invoice.id, { status: "SENT" });
         }
@@ -174,7 +203,43 @@ export class PaymentService {
     return updatedPayment;
   }
 
-  
+  async searchPayments(query: { q?: string; cursor?: string; limit?: string }) {
+    return Search.search<Payment>((args) => paymentRepository.search(args), {
+      searchTerm: query.q || "",
+      exactFields: ["paymentNumber"],
+      nestedFields: {
+        invoice: {
+          customer: ["name", "phone"],
+        },
+      },
+      cursor: query.cursor,
+      limit: query.limit,
+    });
+  }
+
+  async filterPayments(query: {
+    status?: string;
+    paymentMethod?: string;
+    paymentDateFrom?: string;
+    paymentDateTo?: string;
+    amountFrom?: string;
+    amountTo?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Filter.filter<Payment>((args) => paymentRepository.filter(args), {
+      filters: {
+        status: query.status,
+        paymentMethod: query.paymentMethod,
+        paymentDateFrom: query.paymentDateFrom,
+        paymentDateTo: query.paymentDateTo,
+        amountFrom: query.amountFrom,
+        amountTo: query.amountTo,
+      },
+      cursor: query.cursor,
+      limit: query.limit,
+    });
+  }
 }
 
 export const paymentService = new PaymentService();

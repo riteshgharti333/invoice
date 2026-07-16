@@ -5,12 +5,16 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 import { generateCode } from "../../common/utils/generateCode";
 import { FinancialCalculations } from "../../common/calculations/financial-calculations";
 import { Pagination } from "../../common/utils/pagination";
-import { Invoice } from "@prisma/client";
+import { Invoice, Prisma } from "@prisma/client";
 import { prisma } from "../../database/client";
 import { Search } from "../../common/utils/search";
 import { Filter } from "../../common/utils/filter";
 import { InvoiceStatusUtil } from "../../common/utils/invoice-status.util";
 import { PaymentSummaryUtil } from "../../common/utils/payment-summary.util";
+
+type InvoiceWithCustomer = Prisma.InvoiceGetPayload<{
+  include: { customer: true };
+}>;
 
 export class InvoiceService {
   async generateInvoiceNumber(): Promise<string> {
@@ -37,17 +41,28 @@ export class InvoiceService {
     await this.autoUpdateOverdueInvoices();
 
     const result = await Pagination.paginate<Invoice>(
-      (args) => prisma.invoice.findMany(args),
+      (args) =>
+        prisma.invoice.findMany({
+          ...args,
+          include: {
+            customer: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        }),
       {
         cursor: query.cursor,
         limit: query.limit ? parseInt(query.limit) : undefined,
       },
     );
 
-    // Add payment summary to each invoice
     return {
       ...result,
-      data: result.data.map((invoice) => this.addPaymentSummary(invoice)),
+      data: result.data.map((invoice) => ({
+        ...this.addPaymentSummary(invoice),
+      })),
     };
   }
 

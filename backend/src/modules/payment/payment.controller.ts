@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class PaymentController {
   getAllPayments = asyncHandler(async (_req: Request, res: Response) => {
-    const payments = await paymentService.getAllPayments(_req.body);
+    const payments = await paymentService.getAllPayments(_req.query);
 
     return apiResponse({
       res,
@@ -83,7 +83,26 @@ class PaymentController {
       data: payment,
     });
   });
-  
+
+  searchPayments = asyncHandler(async (req: Request, res: Response) => {
+    const payments = await paymentService.searchPayments(req.query);
+
+    return apiResponse({
+      res,
+      message: "Payments found successfully",
+      data: payments,
+    });
+  });
+
+  filterPayments = asyncHandler(async (req: Request, res: Response) => {
+    const payments = await paymentService.filterPayments(req.query);
+
+    return apiResponse({
+      res,
+      message: "Payments filtered successfully",
+      data: payments,
+    });
+  });
 }
 
 export const paymentController = new PaymentController();

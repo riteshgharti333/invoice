@@ -10,6 +10,8 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get("/", authorize("ADMIN"), paymentController.getAllPayments);
+router.get("/search", authorize("ADMIN"), paymentController.searchPayments);
+router.get("/filter", authorize("ADMIN"), paymentController.filterPayments);
 router.get("/invoice/:invoiceId", authorize("ADMIN"), paymentController.getPaymentsByInvoice);
 router.get("/:id", authorize("ADMIN"), paymentController.getPaymentById);
 router.post("/", authorize("ADMIN"), validate(createPaymentSchema), paymentController.createPayment);

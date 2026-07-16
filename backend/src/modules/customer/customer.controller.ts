@@ -74,14 +74,14 @@ class CustomerController {
     });
   });
   filterCustomers = asyncHandler(async (req: Request, res: Response) => {
-  const customers = await customerService.filterCustomers(req.query);
+    const customers = await customerService.filterCustomers(req.query);
 
-  return apiResponse({
-    res,
-    message: "Customers filtered successfully",
-    data: customers,
+    return apiResponse({
+      res,
+      message: "Customers filtered successfully",
+      data: customers,
+    });
   });
-});
 }
 
 export const customerController = new CustomerController();

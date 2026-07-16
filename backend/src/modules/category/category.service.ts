@@ -8,15 +8,32 @@ import { prisma } from "../../database/client";
 import { Search } from "../../common/utils/search";
 import { Filter } from "../../common/utils/filter";
 
+export const addServiceCount = (category: any) => ({
+  ...category,
+  serviceCount: category.services?.length || 0,
+  services: undefined,
+});
+
 export class CategoryService {
   async getAllCategories(query: { cursor?: string; limit?: string }) {
-    return Pagination.paginate<Category>(
-      (args) => prisma.category.findMany(args),
+    const result = await Pagination.paginate(
+      (args) =>
+        prisma.category.findMany({
+          ...args,
+          include: {
+            services: { select: { id: true } },
+          },
+        }),
       {
         cursor: query.cursor,
         limit: query.limit ? parseInt(query.limit) : undefined,
       },
     );
+
+    return {
+      ...result,
+      data: result.data.map(addServiceCount),
+    };
   }
 
   async getCategoryById(id: string) {
@@ -78,23 +95,20 @@ export class CategoryService {
     });
   }
   async filterCategories(query: {
-  createdAtFrom?: string;
-  createdAtTo?: string;
-  cursor?: string;
-  limit?: string;
-}) {
-  return Filter.filter<Category>(
-    (args) => categoryRepository.filter(args),
-    {
+    createdAtFrom?: string;
+    createdAtTo?: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    return Filter.filter<Category>((args) => categoryRepository.filter(args), {
       filters: {
         createdAtFrom: query.createdAtFrom,
         createdAtTo: query.createdAtTo,
       },
       cursor: query.cursor,
       limit: query.limit,
-    }
-  );
-}
+    });
+  }
 }
 
 export const categoryService = new CategoryService();

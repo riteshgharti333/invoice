@@ -6,7 +6,7 @@ import { HTTP_STATUS } from "../../common/constants/httpStatus";
 
 class CategoryController {
   getAllCategories = asyncHandler(async (_req: Request, res: Response) => {
-    const categories = await categoryService.getAllCategories(_req.body);
+    const categories = await categoryService.getAllCategories(_req.query);
 
     return apiResponse({
       res,

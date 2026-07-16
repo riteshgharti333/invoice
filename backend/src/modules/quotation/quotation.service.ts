@@ -39,13 +39,31 @@ export class QuotationService {
 
   async getAllQuotations(query: { cursor?: string; limit?: string }) {
     await this.autoUpdateExpiredQuotations();
-    return Pagination.paginate<Quotation>(
-      (args) => prisma.quotation.findMany(args),
+
+    const result = await Pagination.paginate<Quotation>(
+      (args) =>
+        prisma.quotation.findMany({
+          ...args,
+          include: {
+            customer: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        }),
       {
         cursor: query.cursor,
         limit: query.limit ? parseInt(query.limit) : undefined,
       },
     );
+
+    return {
+      ...result,
+      data: result.data.map((quotation: any) => ({
+        ...quotation,
+      })),
+    };
   }
 
   async getQuotationById(id: string) {
