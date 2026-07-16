@@ -1,4 +1,3 @@
-// src/features/api/service.api.ts
 import axiosInstance from '../../utils/axios';
 import type { Service, CreateServiceDto, UpdateServiceDto } from '@invoice/shared/types';
 

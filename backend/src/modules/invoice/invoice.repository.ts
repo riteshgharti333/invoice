@@ -2,7 +2,6 @@ import { prisma } from "../../database/client";
 
 export class InvoiceRepository {
   async findMany() {
-    
     return prisma.invoice.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -65,6 +64,7 @@ export class InvoiceRepository {
     tax: number;
     total: number;
     status: string;
+    isFromQuotation?: boolean;
     notes?: string;
     termsConditions?: string;
     createdById?: string;
@@ -93,6 +93,7 @@ export class InvoiceRepository {
         notes: data.notes,
         termsConditions: data.termsConditions,
         createdById: data.createdById,
+        isFromQuotation: data.isFromQuotation,
         items: {
           create: data.items,
         },
@@ -117,28 +118,31 @@ export class InvoiceRepository {
     });
   }
 
-  async update(id: string, data: {
-    customerId?: string;
-    quotationId?: string;
-    issueDate?: Date;
-    dueDate?: Date;
-    subtotal?: number;
-    discount?: number;
-    tax?: number;
-    total?: number;
-    status?: string;
-    notes?: string;
-    termsConditions?: string;
-    items?: {
-      serviceId: string;
-      description?: string;
-      quantity: number;
-      unitPrice: number;
-      taxRate: number;
-      discount: number;
-      total: number;
-    }[];
-  }) {
+  async update(
+    id: string,
+    data: {
+      customerId?: string;
+      quotationId?: string;
+      issueDate?: Date;
+      dueDate?: Date;
+      subtotal?: number;
+      discount?: number;
+      tax?: number;
+      total?: number;
+      status?: string;
+      notes?: string;
+      termsConditions?: string;
+      items?: {
+        serviceId: string;
+        description?: string;
+        quantity: number;
+        unitPrice: number;
+        taxRate: number;
+        discount: number;
+        total: number;
+      }[];
+    },
+  ) {
     if (data.items) {
       await prisma.invoiceItem.deleteMany({
         where: { invoiceId: id },
@@ -196,51 +200,51 @@ export class InvoiceRepository {
   }
 
   async search(args: any) {
-  return prisma.invoice.findMany({
-    ...args,
-    include: {
-      customer: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
+    return prisma.invoice.findMany({
+      ...args,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        items: true,
+        quotation: {
+          select: {
+            id: true,
+            quotationNumber: true,
+          },
         },
       },
-      items: true,
-      quotation: {
-        select: {
-          id: true,
-          quotationNumber: true,
-        },
-      },
-    },
-  });
-}
+    });
+  }
 
-async filter(args: any) {
-  return prisma.invoice.findMany({
-    ...args,
-    include: {
-      customer: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
+  async filter(args: any) {
+    return prisma.invoice.findMany({
+      ...args,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
         },
-      },
-      quotation: {
-        select: {
-          id: true,
-          quotationNumber: true,
+        quotation: {
+          select: {
+            id: true,
+            quotationNumber: true,
+          },
         },
+        items: true,
+        payments: true,
       },
-      items: true,
-      payments: true,
-    },
-  });
-}
+    });
+  }
 }
 
 export const invoiceRepository = new InvoiceRepository();

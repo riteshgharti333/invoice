@@ -76,24 +76,6 @@ export interface UpdateServiceDto {
   taxRate?: number;
 }
 
-export interface CreateServiceDto {
-  name: string;
-  description?: string;
-  categoryId?: string;
-  unit?: string;
-  price: number;
-  taxRate?: number;
-}
-
-export interface UpdateServiceDto {
-  name?: string;
-  description?: string;
-  categoryId?: string;
-  unit?: string;
-  price?: number;
-  taxRate?: number;
-}
-
 export interface Category {
   id: string;
   name: string;
@@ -113,6 +95,47 @@ export interface CreateCategoryDto {
 export interface UpdateCategoryDto {
   name?: string;
   description?: string;
+}
+
+// Invoice
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  customerId: string;
+  customer?: {
+    id: string;
+    name: string;
+    email?: string;
+    phone: string;
+  };
+  quotationId?: string;
+  quotation?: {
+    id: string;
+    quotationNumber: string;
+  };
+  issueDate: string;
+  dueDate?: string;
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  status:
+    | "DRAFT"
+    | "SENT"
+    | "PARTIALLY_PAID"
+    | "PAID"
+    | "OVERDUE"
+    | "CANCELLED";
+  notes?: string;
+  termsConditions?: string;
+  items?: InvoiceItem[];
+  payments?: Payment[];
+  totalPaid?: number;
+  remainingBalance?: number;
+  isFromQuotation: Boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface InvoiceItemDto {
@@ -154,44 +177,8 @@ export interface UpdateInvoiceDto {
     | "CANCELLED";
   items?: InvoiceItemDto[];
 }
-// packages/shared/src/types.ts - Add Invoice types
-export interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  customerId: string;
-  customer?: {
-    id: string;
-    name: string;
-    email?: string;
-    phone: string;
-  };
-  quotationId?: string;
-  quotation?: {
-    id: string;
-    quotationNumber: string;
-  };
-  issueDate: string;
-  dueDate?: string;
-  subtotal: number;
-  discount: number;
-  tax: number;
-  total: number;
-  status:
-    | "DRAFT"
-    | "SENT"
-    | "PARTIALLY_PAID"
-    | "PAID"
-    | "OVERDUE"
-    | "CANCELLED";
-  notes?: string;
-  termsConditions?: string;
-  items?: InvoiceItem[];
-  payments?: Payment[];
-  totalPaid?: number;
-  remainingBalance?: number;
-  createdAt: string;
-  updatedAt: string;
-}
+
+// Payment
 
 export interface CreatePaymentDto {
   invoiceId: string;
@@ -305,9 +292,6 @@ export interface UpdateQuotationDto {
   items?: QuotationItemDto[];
 }
 
-
-
-
 export interface Payment {
   id: string;
   paymentNumber: string;
@@ -327,7 +311,7 @@ export interface Payment {
   paymentDate: string;
   transactionNumber?: string;
   notes?: string;
-  status: 'COMPLETED' | 'PENDING' | 'FAILED' | 'REFUNDED';
+  status: "COMPLETED" | "PENDING" | "FAILED" | "REFUNDED";
   createdAt: string;
   updatedAt: string;
 }
@@ -335,7 +319,14 @@ export interface Payment {
 export interface CreatePaymentDto {
   invoiceId: string;
   amount: number;
-  paymentMethod: "CASH" | "BANK_TRANSFER" | "UPI" | "CREDIT_CARD" | "DEBIT_CARD" | "PAYPAL" | "OTHER";
+  paymentMethod:
+    | "CASH"
+    | "BANK_TRANSFER"
+    | "UPI"
+    | "CREDIT_CARD"
+    | "DEBIT_CARD"
+    | "PAYPAL"
+    | "OTHER";
   paymentDate?: string;
   transactionNumber?: string;
   notes?: string;
@@ -343,7 +334,14 @@ export interface CreatePaymentDto {
 
 export interface UpdatePaymentDto {
   amount?: number;
-  paymentMethod?: "CASH" | "BANK_TRANSFER" | "UPI" | "CREDIT_CARD" | "DEBIT_CARD" | "PAYPAL" | "OTHER";
+  paymentMethod?:
+    | "CASH"
+    | "BANK_TRANSFER"
+    | "UPI"
+    | "CREDIT_CARD"
+    | "DEBIT_CARD"
+    | "PAYPAL"
+    | "OTHER";
   paymentDate?: string;
   transactionNumber?: string;
   notes?: string;

@@ -1,12 +1,22 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TbArrowLeft, TbUserPlus, TbMail, TbPhone, TbMapPin, TbBuilding, TbCheck } from 'react-icons/tb';
-import { createCustomerSchema } from '@invoice/shared';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  TbArrowLeft,
+  TbUserPlus,
+  TbMail,
+  TbPhone,
+  TbMapPin,
+  TbBuilding,
+} from "react-icons/tb";
+import { createCustomerSchema, } from "@invoice/shared";
+import { useCreateCustomer } from "../../features/hooks/useCustomers";
+import type { CreateCustomerDto } from "@invoice/shared/types";
+
 
 interface Field {
-  name: string;
+  name: keyof CreateCustomerDto;
   label: string;
-  type: 'text' | 'email' | 'textarea';
+  type: "text" | "email" | "textarea";
   placeholder: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   required?: boolean;
@@ -17,70 +27,68 @@ interface Field {
 
 const formFields: Field[] = [
   {
-    name: 'name',
-    label: 'Name',
-    type: 'text',
-    placeholder: 'Enter customer name',
+    name: "name",
+    label: "Name",
+    type: "text",
+    placeholder: "Enter customer name",
     icon: TbUserPlus,
     required: true,
   },
   {
-    name: 'email',
-    label: 'Email',
-    type: 'email',
-    placeholder: 'customer@example.com',
+    name: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "customer@example.com",
     icon: TbMail,
   },
   {
-    name: 'phone',
-    label: 'Phone',
-    type: 'text',
-    placeholder: '+91 98765 43210',
+    name: "phone",
+    label: "Phone",
+    type: "text",
+    placeholder: "+91 98765 43210",
     icon: TbPhone,
     required: true,
   },
   {
-    name: 'address',
-    label: 'Address',
-    type: 'textarea',
-    placeholder: 'Enter complete address',
+    name: "address",
+    label: "Address",
+    type: "textarea",
+    placeholder: "Enter complete address",
     icon: TbMapPin,
     rows: 3,
   },
   {
-    name: 'gstNumber',
-    label: 'GST Number',
-    type: 'text',
-    placeholder: '27AABCT1234C1Z5',
+    name: "gstNumber",
+    label: "GST Number",
+    type: "text",
+    placeholder: "27AABCT1234C1Z5",
     icon: TbBuilding,
     maxLength: 15,
     uppercase: true,
   },
   {
-    name: 'notes',
-    label: 'Notes',
-    type: 'textarea',
-    placeholder: 'Any additional notes...',
+    name: "notes",
+    label: "Notes",
+    type: "textarea",
+    placeholder: "Any additional notes...",
     icon: TbMapPin,
     rows: 3,
   },
 ];
 
-const initialData: Record<string, string> = {
-  name: '',
-  email: '',
-  phone: '',
-  address: '',
-  gstNumber: '',
-  notes: '',
-};
-
 export default function NewCustomer() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<CreateCustomerDto>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    gstNumber: "",
+    notes: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+
+  const { mutate: createCustomer, isPending } = useCreateCustomer();
 
   const validate = (): boolean => {
     const result = createCustomerSchema.shape.body.safeParse(formData);
@@ -99,13 +107,13 @@ export default function NewCustomer() {
     return true;
   };
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = (name: keyof CreateCustomerDto, value: string) => {
     const field = formFields.find((f) => f.name === name);
     const finalValue = field?.uppercase ? value.toUpperCase() : value;
-    
+
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -113,20 +121,30 @@ export default function NewCustomer() {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        navigate('/customers');
-      }, 1500);
-    }, 800);
+    createCustomer(formData, {
+      onSuccess: () => {
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          address: "",
+          gstNumber: "",
+          notes: "",
+        });
+        setErrors({});
+        setTimeout(() => {
+          navigate("/customers");
+        }, 1500);
+      },
+    });
   };
 
-  const basicFields = formFields.filter((f) => ['name', 'email', 'phone'].includes(f.name));
-  const additionalFields = formFields.filter((f) => ['address', 'gstNumber', 'notes'].includes(f.name));
+  const basicFields = formFields.filter((f) =>
+    ["name", "email", "phone"].includes(f.name),
+  );
+  const additionalFields = formFields.filter((f) =>
+    ["address", "gstNumber", "notes"].includes(f.name),
+  );
 
   const renderField = (field: Field) => {
     const Icon = field.icon;
@@ -140,11 +158,11 @@ export default function NewCustomer() {
         </label>
 
         <div className="relative">
-          {field.type !== 'textarea' && (
+          {field.type !== "textarea" && (
             <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
           )}
 
-          {field.type === 'textarea' ? (
+          {field.type === "textarea" ? (
             <>
               <Icon className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
               <textarea
@@ -154,7 +172,7 @@ export default function NewCustomer() {
                 rows={field.rows || 3}
                 maxLength={field.maxLength}
                 className={`w-full pl-10 pr-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all resize-none ${
-                  hasError ? 'border-danger' : 'border-border'
+                  hasError ? "border-danger" : "border-border"
                 }`}
               />
             </>
@@ -166,43 +184,33 @@ export default function NewCustomer() {
               placeholder={field.placeholder}
               maxLength={field.maxLength}
               className={`w-full pl-10 pr-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
-                field.name === 'gstNumber' ? 'font-mono' : ''
-              } ${hasError ? 'border-danger' : 'border-border'}`}
+                field.name === "gstNumber" ? "font-mono" : ""
+              } ${hasError ? "border-danger" : "border-border"}`}
             />
           )}
         </div>
 
-        {hasError && <p className="text-danger text-xs mt-1">{errors[field.name]}</p>}
+        {hasError && (
+          <p className="text-danger text-xs mt-1">{errors[field.name]}</p>
+        )}
       </div>
     );
   };
-
-  if (showSuccess) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-success-light rounded-3xl flex items-center justify-center mx-auto mb-6 animate-bounce">
-            <TbCheck size={36} className="text-success" />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary mb-2">Customer Added!</h2>
-          <p className="text-text-secondary">Redirecting to customers page...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
         <button
-          onClick={() => navigate('/customers')}
+          onClick={() => navigate("/customers")}
           className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
         >
           <TbArrowLeft size={20} className="text-text-secondary" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">New Customer</h1>
-          <p className="text-text-secondary text-sm mt-1">Add a new customer to your system</p>
+          <p className="text-text-secondary text-sm mt-1">
+            Add a new customer to your system
+          </p>
         </div>
       </div>
 
@@ -214,8 +222,12 @@ export default function NewCustomer() {
               <TbUserPlus size={20} className="text-brand" />
             </div>
             <div>
-              <h2 className="font-semibold text-text-primary">Basic Information</h2>
-              <p className="text-xs text-text-muted">Required fields are marked with *</p>
+              <h2 className="font-semibold text-text-primary">
+                Basic Information
+              </h2>
+              <p className="text-xs text-text-muted">
+                Required fields are marked with *
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -230,33 +242,33 @@ export default function NewCustomer() {
               <TbBuilding size={20} className="text-text-secondary" />
             </div>
             <div>
-              <h2 className="font-semibold text-text-primary">Additional Details</h2>
+              <h2 className="font-semibold text-text-primary">
+                Additional Details
+              </h2>
               <p className="text-xs text-text-muted">Optional information</p>
             </div>
           </div>
-          <div className="space-y-4">
-            {additionalFields.map(renderField)}
-          </div>
+          <div className="space-y-4">{additionalFields.map(renderField)}</div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"
-            onClick={() => navigate('/customers')}
+            onClick={() => navigate("/customers")}
             className="px-6 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
             className="flex items-center gap-2 px-6 py-2.5 bg-brand text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-brand/25 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? (
+            {isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Saving...
+                Creating...
               </>
             ) : (
               <>

@@ -32,7 +32,14 @@ export default function Invoices() {
       sortable: true,
       cell: (info: any) => (
         <div>
-          <p className="font-medium font-mono text-xs">#{info.getValue()}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="font-medium font-mono text-xs">#{info.getValue()}</p>
+            {info.row.original.isFromQuotation && (
+              <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-bold">
+                Q
+              </span>
+            )}
+          </div>
           <p className="text-xs text-text-muted mt-0.5">
             {info.row.original.customer?.name || "Unknown"}
           </p>

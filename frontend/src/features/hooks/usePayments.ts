@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CreatePaymentDto, UpdatePaymentDto } from '@invoice/shared/types';
 import { paymentApi } from '../api/payment.api';
 import { toast } from '../../utils/toast';
+import { invoiceKeys } from './useInvoices';
 
 export const paymentKeys = {
   all: ['payments'] as const,

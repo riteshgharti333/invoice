@@ -28,6 +28,12 @@ export interface UpdateInvoiceDto {
   tax?: number;
   notes?: string;
   termsConditions?: string;
-  status?: "DRAFT" | "SENT" | "PARTIALLY_PAID" | "PAID" | "OVERDUE" | "CANCELLED";
+  status?:
+    | "DRAFT"
+    | "SENT"
+    | "PARTIALLY_PAID"
+    | "PAID"
+    | "OVERDUE"
+    | "CANCELLED";
   items?: InvoiceItemDto[];
 }

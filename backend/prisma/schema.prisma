@@ -210,6 +210,8 @@ model Invoice {
   total           Decimal       @db.Decimal(12,2)
 
   status          InvoiceStatus @default(DRAFT)
+  isFromQuotation Boolean       @default(false)  
+
 
   notes           String?
   termsConditions String?

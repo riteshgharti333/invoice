@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TbArrowLeft, TbFolder, TbFileText, TbCheck } from 'react-icons/tb';
-import { createCategorySchema } from '@invoice/shared';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { TbArrowLeft, TbFolder, TbFileText } from "react-icons/tb";
+import type { CreateCategoryDto } from "@invoice/shared/types";
+import { useCreateCategory } from "../../features/hooks/useCategories";
+import { createCategorySchema } from "@invoice/shared";
 
 interface Field {
-  name: string;
+  name: keyof CreateCategoryDto;
   label: string;
-  type: 'text' | 'textarea';
+  type: "text" | "textarea";
   placeholder: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   required?: boolean;
@@ -15,34 +17,32 @@ interface Field {
 
 const formFields: Field[] = [
   {
-    name: 'name',
-    label: 'Category Name',
-    type: 'text',
-    placeholder: 'Enter category name',
+    name: "name",
+    label: "Category Name",
+    type: "text",
+    placeholder: "Enter category name",
     icon: TbFolder,
     required: true,
   },
   {
-    name: 'description',
-    label: 'Description',
-    type: 'textarea',
-    placeholder: 'Enter category description (optional)',
+    name: "description",
+    label: "Description",
+    type: "textarea",
+    placeholder: "Enter category description (optional)",
     icon: TbFileText,
     rows: 3,
   },
 ];
 
-const initialData: Record<string, string> = {
-  name: '',
-  description: '',
-};
-
 export default function NewCategory() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(initialData);
+  const [formData, setFormData] = useState<CreateCategoryDto>({
+    name: "",
+    description: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+
+  const { mutate: createCategory, isPending } = useCreateCategory();
 
   const validate = (): boolean => {
     const result = createCategorySchema.shape.body.safeParse(formData);
@@ -61,10 +61,10 @@ export default function NewCategory() {
     return true;
   };
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = (name: keyof CreateCategoryDto, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -72,16 +72,13 @@ export default function NewCategory() {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
-
-      setTimeout(() => {
-        navigate('/categories');
-      }, 1500);
-    }, 800);
+    createCategory(formData, {
+      onSuccess: (data) => {
+        setFormData({ name: "", description: "" });
+        setErrors({});
+        navigate(`/categories/${data.data.id}`);
+      },
+    });
   };
 
   const renderField = (field: Field) => {
@@ -96,14 +93,14 @@ export default function NewCategory() {
         </label>
 
         <div className="relative">
-          {field.type === 'textarea' ? (
+          {field.type === "textarea" ? (
             <textarea
-              value={formData[field.name]}
+              value={formData[field.name] || ""}
               onChange={(e) => handleChange(field.name, e.target.value)}
               placeholder={field.placeholder}
               rows={field.rows || 3}
               className={`w-full px-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all resize-none ${
-                hasError ? 'border-danger' : 'border-border'
+                hasError ? "border-danger" : "border-border"
               }`}
             />
           ) : (
@@ -115,44 +112,34 @@ export default function NewCategory() {
                 onChange={(e) => handleChange(field.name, e.target.value)}
                 placeholder={field.placeholder}
                 className={`w-full pl-10 pr-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
-                  hasError ? 'border-danger' : 'border-border'
+                  hasError ? "border-danger" : "border-border"
                 }`}
               />
             </>
           )}
         </div>
 
-        {hasError && <p className="text-danger text-xs mt-1">{errors[field.name]}</p>}
+        {hasError && (
+          <p className="text-danger text-xs mt-1">{errors[field.name]}</p>
+        )}
       </div>
     );
   };
-
-  if (showSuccess) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-success-light rounded-3xl flex items-center justify-center mx-auto mb-6 animate-bounce">
-            <TbCheck size={36} className="text-success" />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary mb-2">Category Added!</h2>
-          <p className="text-text-secondary">Redirecting to categories page...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
         <button
-          onClick={() => navigate('/categories')}
+          onClick={() => navigate("/categories")}
           className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
         >
           <TbArrowLeft size={20} className="text-text-secondary" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">New Category</h1>
-          <p className="text-text-secondary text-sm mt-1">Add a new service category</p>
+          <p className="text-text-secondary text-sm mt-1">
+            Add a new service category
+          </p>
         </div>
       </div>
 
@@ -163,8 +150,12 @@ export default function NewCategory() {
               <TbFolder size={20} className="text-brand" />
             </div>
             <div>
-              <h2 className="font-semibold text-text-primary">Category Details</h2>
-              <p className="text-xs text-text-muted">Required fields are marked with *</p>
+              <h2 className="font-semibold text-text-primary">
+                Category Details
+              </h2>
+              <p className="text-xs text-text-muted">
+                Required fields are marked with *
+              </p>
             </div>
           </div>
 
@@ -174,17 +165,17 @@ export default function NewCategory() {
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             type="button"
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate("/categories")}
             className="px-6 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isPending}
             className="flex items-center gap-2 px-6 py-2.5 bg-brand text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-brand/25 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? (
+            {isPending ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Saving...

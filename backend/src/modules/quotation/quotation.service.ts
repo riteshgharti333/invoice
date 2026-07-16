@@ -1,5 +1,6 @@
 import { AppError } from "../../common/errors/AppError";
 import { quotationRepository } from "./quotation.repository";
+import { invoiceRepository } from "../invoice/invoice.repository";
 import type { CreateQuotationDto, UpdateQuotationDto } from "./quotation.types";
 import { HTTP_STATUS } from "../../common/constants/httpStatus";
 import { generateCode } from "../../common/utils/generateCode";
@@ -122,6 +123,11 @@ export class QuotationService {
     });
   }
 
+  async deleteQuotation(id: string) {
+    await this.getQuotationById(id);
+    await quotationRepository.delete(id);
+  }
+
   async updateQuotation(id: string, data: UpdateQuotationDto) {
     await this.getQuotationById(id);
 
@@ -161,15 +167,48 @@ export class QuotationService {
     });
   }
 
-  async deleteQuotation(id: string) {
-    await this.getQuotationById(id);
-    await quotationRepository.delete(id);
+  async updateStatus(id: string, status: string) {
+    const quotation = await this.getQuotationById(id);
+
+    // Update the status
+    const updated = await quotationRepository.update(id, { status });
+
+    // If approved, auto-create invoice
+    if (status === "APPROVED") {
+      const invoiceData = {
+        invoiceNumber: generateCode("INV", await invoiceRepository.count()),
+        customerId: quotation.customerId,
+        quotationId: quotation.id,
+        issueDate: new Date(),
+        dueDate:
+          quotation.expiryDate ||
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now if no expiry
+        subtotal: Number(quotation.subtotal),
+        discount: Number(quotation.discount),
+        tax: Number(quotation.tax),
+        total: Number(quotation.total),
+        notes: quotation.notes ?? undefined,
+        termsConditions: quotation.termsConditions ?? undefined,
+        status: "DRAFT",
+        isFromQuotation: true,
+        items: quotation.items?.map((item) => ({
+          serviceId: item.serviceId,
+          description: item.description ?? undefined,
+          quantity: item.quantity,
+          unitPrice: Number(item.unitPrice),
+          taxRate: Number(item.taxRate),
+          discount: Number(item.discount),
+          total: Number(item.total),
+        })),
+      };
+
+      // Create invoice - you need invoiceRepository or invoiceService injected
+      await invoiceRepository.create(invoiceData);
+    }
+
+    return updated;
   }
 
-  async updateStatus(id: string, status: string) {
-    await this.getQuotationById(id);
-    return quotationRepository.update(id, { status });
-  }
   async searchQuotations(query: {
     q?: string;
     cursor?: string;

@@ -11,6 +11,7 @@ import { Search } from "../../common/utils/search";
 import { Filter } from "../../common/utils/filter";
 import { InvoiceStatusUtil } from "../../common/utils/invoice-status.util";
 import { PaymentSummaryUtil } from "../../common/utils/payment-summary.util";
+import { quotationRepository } from "../quotation/quotation.repository";
 
 type InvoiceWithCustomer = Prisma.InvoiceGetPayload<{
   include: { customer: true };
@@ -114,6 +115,25 @@ export class InvoiceService {
       });
     }
 
+    // Validate quotation if provided
+    if (data.quotationId) {
+      const quotation = await quotationRepository.findById(data.quotationId);
+
+      if (!quotation) {
+        throw new AppError({
+          statusCode: HTTP_STATUS.NOT_FOUND,
+          message: "Quotation not found",
+        });
+      }
+
+      if (quotation.status !== "APPROVED") {
+        throw new AppError({
+          statusCode: HTTP_STATUS.BAD_REQUEST,
+          message: "Can only create invoice from approved quotations",
+        });
+      }
+    }
+
     const invoiceNumber = await this.generateInvoiceNumber();
     const { subtotal, discount, tax, total } =
       FinancialCalculations.calculateTotals(
@@ -143,6 +163,7 @@ export class InvoiceService {
       tax,
       total,
       status: "DRAFT",
+      isFromQuotation: !!data.quotationId,
       notes: data.notes,
       termsConditions: data.termsConditions,
       createdById: userId,

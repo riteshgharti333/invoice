@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import Payments from "./pages/TablePage/Payments";
 import NewPayment from "./pages/NewPage/NewPayment";
 import UpdatePayment from "./pages/UpdatePage/UpdatePayment";
+import NewQuotation from "./pages/NewPage/NewQuotation";
 
 function App() {
   const { checkAuth, isLoading } = useAuthStore();
@@ -53,7 +54,7 @@ function App() {
           <Route path="/services/new-service" element={<NewService />} />
           <Route path="/category/new-category" element={<NewCategory />} />
           <Route path="/invoice/new-invoice" element={<NewInvoice />} />
-          <Route path="/quotation/new-quotation" element={<NewInvoice />} />
+          <Route path="/quotation/new-quotation" element={<NewQuotation />} />
           <Route path="/payment/new-payment" element={<NewPayment />} />
 
           //UPDATE

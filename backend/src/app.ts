@@ -18,14 +18,14 @@ app.use(morgan("dev"));
 app.use(requestIdMiddleware);
 app.use(requestLogger);
 app.use(cookieParser()); 
-    
+     
 // CORS 
-app.use(
+app.use( 
   cors({ 
     origin: [
       process.env.FRONTEND_URL || "http://localhost:3000",
       process.env.ADMIN_URL || "http://localhost:5173",
-      "http://localhost:5173",
+      "http://localhost:5173", 
       "http://localhost:3000",
     ],
     credentials: true,
