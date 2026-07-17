@@ -15,9 +15,9 @@ export interface CreateInvoiceDto {
   discount?: number;
   tax?: number;
   notes?: string;
-  termsConditions?: string;
+  termsConditions?: string; 
   items: InvoiceItemDto[];
-}
+}  
 
 export interface UpdateInvoiceDto {
   customerId?: string;

@@ -29,7 +29,10 @@ class QuotationController {
   createQuotation = asyncHandler(async (req: Request, res: Response) => {
     const quotationData = req.body;
     const userId = (req as any).user?.id;
-    const quotation = await quotationService.createQuotation(quotationData, userId);
+    const quotation = await quotationService.createQuotation(
+      quotationData,
+      userId,
+    );
 
     return apiResponse({
       res,
@@ -42,7 +45,10 @@ class QuotationController {
   updateQuotation = asyncHandler(async (req: Request, res: Response) => {
     const quotationId = req.params.id as string;
     const updateData = req.body;
-    const quotation = await quotationService.updateQuotation(quotationId, updateData);
+    const quotation = await quotationService.updateQuotation(
+      quotationId,
+      updateData,
+    );
 
     return apiResponse({
       res,
@@ -74,27 +80,25 @@ class QuotationController {
     });
   });
 
-
   searchQuotations = asyncHandler(async (req: Request, res: Response) => {
-  const quotations = await quotationService.searchQuotations(req.query);
+    const quotations = await quotationService.searchQuotations(req.query);
 
-  return apiResponse({
-    res,
-    message: "Quotations found successfully",
-    data: quotations,
+    return apiResponse({
+      res,
+      message: "Quotations found successfully",
+      data: quotations,
+    });
   });
-});
 
+  filterQuotations = asyncHandler(async (req: Request, res: Response) => {
+    const quotations = await quotationService.filterQuotations(req.query);
 
-filterQuotations = asyncHandler(async (req: Request, res: Response) => {
-  const quotations = await quotationService.filterQuotations(req.query);
-
-  return apiResponse({
-    res,
-    message: "Quotations filtered successfully",
-    data: quotations,
+    return apiResponse({
+      res,
+      message: "Quotations filtered successfully",
+      data: quotations,
+    });
   });
-});
 }
 
 export const quotationController = new QuotationController();

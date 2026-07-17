@@ -24,7 +24,7 @@ export const quotationApi = {
       .get<ApiResponse<Quotation>>(`/quotation/${id}`)
       .then((res) => res.data),
 
-  search: (params: { q?: string; cursor?: string; limit?: string }) =>
+search: (params: { q?: string; cursor?: string; limit?: string; status?: string }) =>
     axiosInstance
       .get<ApiResponse<PaginatedResponse<Quotation>>>('/quotation/search', { params })
       .then((res) => res.data),

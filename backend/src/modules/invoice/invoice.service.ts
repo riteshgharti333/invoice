@@ -174,6 +174,7 @@ export class InvoiceService {
   }
 
   async updateInvoice(id: string, data: UpdateInvoiceDto) {
+    await this.autoUpdateOverdueInvoices();
     await this.getInvoiceById(id);
 
     let calculations = {};

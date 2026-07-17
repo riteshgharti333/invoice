@@ -34,8 +34,10 @@ export function calcTotals(items: CalcItem[]): Totals {
   return { subtotal, totalTax, totalDiscount, grandTotal };
 }
 
-export function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+
+export function formatCurrency(amount: number | string | undefined | null): string {
+  const num = Number(amount) || 0;
+  return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 }
 
 export function getTodayDate(): string {

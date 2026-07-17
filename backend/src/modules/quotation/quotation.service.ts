@@ -213,6 +213,7 @@ export class QuotationService {
     q?: string;
     cursor?: string;
     limit?: string;
+    status?: string;
   }) {
     return Search.search<Quotation>(
       (args) => quotationRepository.search(args),
@@ -222,6 +223,11 @@ export class QuotationService {
         nestedFields: {
           customer: ["name", "phone"],
         },
+        ...(query.status && {
+          filters: {
+            status: query.status,
+          },
+        }),
         cursor: query.cursor,
         limit: query.limit,
       },
