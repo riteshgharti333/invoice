@@ -22,6 +22,7 @@ import Payments from "./pages/TablePage/Payments";
 import NewPayment from "./pages/NewPage/NewPayment";
 import UpdatePayment from "./pages/UpdatePage/UpdatePayment";
 import NewQuotation from "./pages/NewPage/NewQuotation";
+import Setting from "./pages/auth/Setting";
 
 function App() {
   const { checkAuth, isLoading } = useAuthStore();
@@ -49,6 +50,8 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/payments" element={<Payments />} />
+          <Route path="/settings" element={<Setting />} />
+
           // NEW
           <Route path="/customer/new-customer" element={<NewCustomer />} />
           <Route path="/services/new-service" element={<NewService />} />

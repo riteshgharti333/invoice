@@ -16,7 +16,7 @@ const app = express();
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(requestIdMiddleware);
-app.use(requestLogger);
+app.use(requestLogger); 
 app.use(cookieParser()); 
      
 // CORS 
