@@ -93,13 +93,6 @@ export default function Invoices() {
             Manage all your invoices
           </p>
         </div>
-        <Link
-          to="/invoice/new-invoice"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
-        >
-          <TbPlus size={18} />
-          New Invoice
-        </Link>
       </div>
 
       <Table

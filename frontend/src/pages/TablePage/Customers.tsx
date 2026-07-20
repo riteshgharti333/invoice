@@ -1,12 +1,20 @@
 // src/pages/Customers.tsx
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TbPlus, TbMail, TbPhone } from "react-icons/tb";
 import { formatDate } from "../../libs/utils";
 import { ActiveBadge } from "../../components/ui/ActiveBadge";
 import { useTableController } from "../../features/hooks/useTableController";
-import { useCustomers, useFilterCustomers, useSearchCustomers } from "../../features/hooks/useCustomers";
+import {
+  useCustomers,
+  useFilterCustomers,
+  useSearchCustomers,
+} from "../../features/hooks/useCustomers";
 import { Table } from "../../components/ui/Table";
+import { Button } from "../../components/ui/ButtonProps";
+import { QuickCustomerForm } from "../../components/layout/QuickCustomerFormProps";
+import { PopupBottomRight } from "../../components/layout/PopupBottomRight";
+import { NewCustomerForm } from "../../components/layout/NewCustomerForm";
 
 const filterLabels: Record<string, string> = {
   createdAtFrom: "From Date",
@@ -20,6 +28,10 @@ export default function Customers() {
     filterDataHook: useFilterCustomers,
   });
 
+    const [showNewCustomer, setShowNewCustomer] = useState(false);
+
+
+
   const columns = useMemo(
     () => [
       {
@@ -27,7 +39,9 @@ export default function Customers() {
         header: "Customer",
         cell: (info: any) => (
           <div>
-            <p className="font-medium text-text-primary text-sm">{info.getValue()}</p>
+            <p className="font-medium text-text-primary text-sm">
+              {info.getValue()}
+            </p>
             <p className="text-xs text-text-muted mt-0.5 font-mono">
               {info.row.original.customerCode}
             </p>
@@ -76,7 +90,7 @@ export default function Customers() {
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -84,15 +98,30 @@ export default function Customers() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Customers</h1>
-          <p className="text-text-secondary text-sm mt-1">Manage all your customers</p>
+          <p className="text-text-secondary text-sm mt-1">
+            Manage all your customers
+          </p>
         </div>
-        <Link
-          to="/customer/new-customer"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
-        >
-          <TbPlus size={18} />
-          Add Customer
-        </Link>
+        <Button
+        variant="primary"
+        size="sm"
+        icon={TbPlus}
+        onClick={() => setShowNewCustomer(true)}
+      >
+        New Customer
+      </Button>
+
+      <PopupBottomRight
+        isOpen={showNewCustomer}
+        onClose={() => setShowNewCustomer(false)}
+        title="New Customer"
+        subtitle="Quick create — add a customer instantly"
+      >
+        <NewCustomerForm
+          onSuccess={() => setShowNewCustomer(false)}
+          onCancel={() => setShowNewCustomer(false)}
+        />
+      </PopupBottomRight>
       </div>
 
       <Table
@@ -116,6 +145,7 @@ export default function Customers() {
         ]}
         filterLabels={filterLabels}
       />
+
     </div>
   );
 }

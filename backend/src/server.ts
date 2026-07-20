@@ -5,14 +5,13 @@ import { logger } from "./config/logger";
 import { prisma, connectDatabase } from "./database/client";
 
 const server = http.createServer(app);
-
- 
- 
+  
+               
 // Connect to database befo re starting server
 const startServer = async () => {
-  try {
+  try {   
     // Test database connection
-    const isConnected = await connectDatabase();
+    const isConnected = await connectDatabase();  
 
     if (!isConnected) {
       logger.error("Failed to connect to database. Exiting...");

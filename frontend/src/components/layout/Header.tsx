@@ -84,16 +84,16 @@ export function Header() {
           <div className="flex items-center gap-6">
             <div className="hidden sm:flex items-center gap-3">
               <div className="flex flex-col">
-                <span className="text-3xl font-extrabold text-text-primary tracking-tight leading-tight">
+                <span className="text-3xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-brand via-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Invoice Ready
                 </span>
                 <span className="text-xs text-text-muted font-medium">
-                  {getGreeting()}, {firstName} 👋
+                  Smart invoicing for modern businesses
                 </span>
               </div>
             </div>
 
-            <span className="sm:hidden text-xl font-extrabold text-text-primary tracking-tight">
+            <span className="sm:hidden text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand to-purple-600 bg-clip-text text-transparent">
               IR
             </span>
           </div>

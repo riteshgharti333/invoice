@@ -9,12 +9,12 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="flex h-screen bg-surface overflow-hidden p-4 gap-10">
+    <div className="flex h-screen  overflow-hidden p-6 gap-8">
       {/* Sidebar - Fixed Left */}
       <Sidebar />
 
       {/* Right Content Area */}
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden px-3">
         {/* Header - Fixed at top, doesn't scroll */}
         <Header />
 

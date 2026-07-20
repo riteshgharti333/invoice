@@ -1,4 +1,4 @@
-import { TbPlus, TbEdit, TbDotsVertical, TbFolder } from "react-icons/tb";
+import { TbPlus, TbFolder } from "react-icons/tb";
 import { Table } from "../../components/ui/Table";
 import { formatDate } from "../../libs/utils";
 import { Link } from "react-router-dom";
@@ -8,6 +8,11 @@ import {
   useSearchCategories,
 } from "../../features/hooks/useCategories";
 import { useTableController } from "../../features/hooks/useTableController";
+import { Button } from "../../components/ui/ButtonProps";
+import { useState } from "react";
+
+import { PopupBottomRight } from "../../components/layout/PopupBottomRight";
+import { NewCategoryForm } from "../../components/layout/NewCategoryForm";
 
 const filterLabels: Record<string, string> = {
   createdAtFrom: "From Date",
@@ -20,7 +25,7 @@ export default function Categories() {
     searchDataHook: useSearchCategories,
     filterDataHook: useFilterCategories,
   });
-
+  const [showNewCategory, setShowNewCategory] = useState(false);
   const columns = [
     {
       accessorKey: "name",
@@ -85,13 +90,26 @@ export default function Categories() {
             Manage service categories
           </p>
         </div>
-        <Link
-          to="/category/new-category"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
+        <Button
+          variant="primary"
+          size="sm"
+          icon={TbPlus}
+          onClick={() => setShowNewCategory(true)}
         >
-          <TbPlus size={18} />
-          Add Category
-        </Link>
+          New Category
+        </Button>
+
+        <PopupBottomRight
+          isOpen={showNewCategory}
+          onClose={() => setShowNewCategory(false)}
+          title="New Category"
+          subtitle="Add a new category"
+        >
+          <NewCategoryForm
+            onSuccess={() => setShowNewCategory(false)}
+            onCancel={() => setShowNewCategory(false)}
+          />
+        </PopupBottomRight>
       </div>
 
       <Table

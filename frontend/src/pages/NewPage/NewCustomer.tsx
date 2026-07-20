@@ -128,7 +128,7 @@ export default function NewCustomer() {
           email: "",
           phone: "",
           address: "",
-          gstNumber: "",
+          gstNumber: "", 
           notes: "",
         });
         setErrors({});

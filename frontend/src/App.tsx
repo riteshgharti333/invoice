@@ -17,12 +17,12 @@ import UpdateService from "./pages/UpdatePage/UpdateService";
 import UpdateCategory from "./pages/UpdatePage/UpdateCategory";
 import Profile from "./pages/auth/Profile";
 import { useAuthStore } from "./store/authStore";
-import { useEffect } from "react";
+import { useEffect } from "react";  
 import Payments from "./pages/TablePage/Payments";
 import NewPayment from "./pages/NewPage/NewPayment";
 import UpdatePayment from "./pages/UpdatePage/UpdatePayment";
 import NewQuotation from "./pages/NewPage/NewQuotation";
-import Setting from "./pages/auth/Setting";
+import Setting from "./pages/auth/Setting"; 
 
 function App() {
   const { checkAuth, isLoading } = useAuthStore();
@@ -41,6 +41,7 @@ function App() {
 
   return (
     <div className="">
+
       <DashboardLayout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -51,15 +52,13 @@ function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/payments" element={<Payments />} />
           <Route path="/settings" element={<Setting />} />
-
           // NEW
           <Route path="/customer/new-customer" element={<NewCustomer />} />
-          <Route path="/services/new-service" element={<NewService />} />
+          <Route path="/service/new-service" element={<NewService />} />
           <Route path="/category/new-category" element={<NewCategory />} />
           <Route path="/invoice/new-invoice" element={<NewInvoice />} />
           <Route path="/quotation/new-quotation" element={<NewQuotation />} />
           <Route path="/payment/new-payment" element={<NewPayment />} />
-
           //UPDATE
           <Route path="/invoice/:id" element={<UpdateInvoice />} />
           <Route path="/quotation/:id" element={<UpdateQuotation />} />
@@ -67,7 +66,6 @@ function App() {
           <Route path="/service/:id" element={<UpdateService />} />
           <Route path="/category/:id" element={<UpdateCategory />} />
           <Route path="/payment/:id" element={<UpdatePayment />} />
-
           //PROFILE
           <Route path="/profile" element={<Profile />} />
         </Routes>

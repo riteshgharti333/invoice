@@ -227,15 +227,32 @@ export class InvoiceService {
   }
 
   async searchInvoices(query: { q?: string; cursor?: string; limit?: string }) {
-    return Search.search<Invoice>((args) => invoiceRepository.search(args), {
-      searchTerm: query.q || "",
-      exactFields: ["invoiceNumber"],
-      nestedFields: {
-        customer: ["name", "phone"],
+    const result = await Search.search<Invoice>(
+      (args) =>
+        prisma.invoice.findMany({
+          ...args,
+          include: {
+            customer: true,
+            payments: true, // Include payments
+          },
+        }),
+      {
+        searchTerm: query.q || "",
+        exactFields: ["invoiceNumber"],
+        nestedFields: {
+          customer: ["name", "phone"],
+        },
+        cursor: query.cursor,
+        limit: query.limit,
       },
-      cursor: query.cursor,
-      limit: query.limit,
-    });
+    );
+
+    return {
+      ...result,
+      data: result.data.map((invoice) => ({
+        ...this.addPaymentSummary(invoice),
+      })),
+    };
   }
 
   async filterInvoices(query: {
@@ -247,17 +264,34 @@ export class InvoiceService {
     cursor?: string;
     limit?: string;
   }) {
-    return Filter.filter<Invoice>((args) => invoiceRepository.filter(args), {
-      filters: {
-        status: query.status,
-        issueDateFrom: query.issueDateFrom,
-        issueDateTo: query.issueDateTo,
-        totalFrom: query.totalFrom,
-        totalTo: query.totalTo,
+    const result = await Filter.filter<Invoice>(
+      (args) =>
+        prisma.invoice.findMany({
+          ...args,
+          include: {
+            customer: true,
+            payments: true, // Include payments
+          },
+        }),
+      {
+        filters: {
+          status: query.status,
+          issueDateFrom: query.issueDateFrom,
+          issueDateTo: query.issueDateTo,
+          totalFrom: query.totalFrom,
+          totalTo: query.totalTo,
+        },
+        cursor: query.cursor,
+        limit: query.limit,
       },
-      cursor: query.cursor,
-      limit: query.limit,
-    });
+    );
+
+    return {
+      ...result,
+      data: result.data.map((invoice) => ({
+        ...this.addPaymentSummary(invoice),
+      })),
+    };
   }
 }
 

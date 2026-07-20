@@ -470,7 +470,9 @@ export default function UpdateInvoice() {
               </span>
             )}
           </div>
-          <p className="text-text-secondary text-sm mt-1">Edit invoice #{id}</p>
+          <p className="text-text-secondary text-sm mt-1">
+            Edit invoice #{invoice?.data?.invoiceNumber}
+          </p>
         </div>
 
         {/* Status Selector - Always Enabled */}

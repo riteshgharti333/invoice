@@ -4,7 +4,12 @@ import { QuotationStatusBadge } from "../../components/ui/QuotationStatusBadge";
 import { Table } from "../../components/ui/Table";
 import { Link } from "react-router-dom";
 import { useTableController } from "../../features/hooks/useTableController";
-import { useQuotations, useSearchQuotations, useFilterQuotations } from "../../features/hooks/useQuotations";
+import {
+  useQuotations,
+  useSearchQuotations,
+  useFilterQuotations,
+} from "../../features/hooks/useQuotations";
+import { Button } from "../../components/ui/ButtonProps";
 
 const filterLabels: Record<string, string> = {
   status: "Status",
@@ -82,12 +87,10 @@ export default function Quotations() {
             Manage all your quotations
           </p>
         </div>
-        <Link
-          to="/quotation/new-quotation"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
-        >
-          <TbPlus size={18} />
-          New Quotation
+        <Link to="/quotation/new-quotation">
+          <Button variant="primary" size="sm" icon={TbPlus}>
+            New Quotation
+          </Button>
         </Link>
       </div>
 

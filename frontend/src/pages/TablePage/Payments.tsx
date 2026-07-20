@@ -1,9 +1,16 @@
-import { TbPlus, TbEye } from "react-icons/tb";
 import { formatCurrency, formatDate } from "../../libs/utils";
 import { Table } from "../../components/ui/Table";
-import { Link } from "react-router-dom";
 import { useTableController } from "../../features/hooks/useTableController";
-import { usePayments, useSearchPayments, useFilterPayments } from "../../features/hooks/usePayments";
+import {
+  usePayments,
+  useSearchPayments,
+  useFilterPayments,
+} from "../../features/hooks/usePayments";
+import { Button } from "../../components/ui/ButtonProps";
+import { PopupBottomRight } from "../../components/layout/PopupBottomRight";
+import { NewPaymentForm } from "../../components/layout/NewPaymentForm";
+import { useState } from "react";
+import { TbCash } from "react-icons/tb";
 
 const filterLabels: Record<string, string> = {
   status: "Status",
@@ -20,6 +27,8 @@ export default function Payments() {
     searchDataHook: useSearchPayments,
     filterDataHook: useFilterPayments,
   });
+
+  const [showPayment, setShowPayment] = useState(false);
 
   const columns = [
     {
@@ -88,7 +97,9 @@ export default function Payments() {
           REFUNDED: "bg-purple-100 text-purple-700",
         };
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[status] || "bg-gray-100 text-gray-700"}`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[status] || "bg-gray-100 text-gray-700"}`}
+          >
             {status}
           </span>
         );
@@ -105,13 +116,27 @@ export default function Payments() {
             Track all payment transactions
           </p>
         </div>
-        <Link
-          to="/payment/new-payment"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
+        <Button
+          variant="primary"
+          size="sm"
+          icon={TbCash}
+          onClick={() => setShowPayment(true)}
         >
-          <TbPlus size={18} />
           Record Payment
-        </Link>
+        </Button>
+
+        <PopupBottomRight
+          isOpen={showPayment}
+          onClose={() => setShowPayment(false)}
+          title="Record Payment"
+          subtitle="Record a new payment for an invoice"
+          width="max-w-xl"
+        >
+          <NewPaymentForm
+            onSuccess={() => setShowPayment(false)}
+            onCancel={() => setShowPayment(false)}
+          />
+        </PopupBottomRight>
       </div>
 
       <Table

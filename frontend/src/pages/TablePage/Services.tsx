@@ -1,7 +1,7 @@
 import { TbPlus } from "react-icons/tb";
 import { Table } from "../../components/ui/Table";
 import { formatCurrency, formatDate } from "../../libs/utils";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useTableController } from "../../features/hooks/useTableController";
 import {
   useFilterServices,
@@ -9,6 +9,10 @@ import {
   useServices,
 } from "../../features/hooks/useServices";
 import { useCategories } from "../../features/hooks/useCategories";
+import { Button } from "../../components/ui/ButtonProps";
+
+import { PopupBottomRight } from "../../components/layout/PopupBottomRight";
+import { NewServiceForm } from "../../components/layout/NewServiceForm";
 
 const filterLabels: Record<string, string> = {
   categoryName: "Category",
@@ -25,6 +29,8 @@ export default function Services() {
     searchDataHook: useSearchServices,
     filterDataHook: useFilterServices,
   });
+
+  const [showNewService, setShowNewService] = useState(false);
 
   const columns = [
     {
@@ -101,13 +107,26 @@ export default function Services() {
             Manage your services and pricing
           </p>
         </div>
-        <Link
-          to="new-service"
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand text-white rounded-xl text-sm font-medium hover:opacity-90 transition-all shadow-lg shadow-brand/25"
+        <Button
+          variant="primary"
+          size="sm"
+          icon={TbPlus}
+          onClick={() => setShowNewService(true)}
         >
-          <TbPlus size={18} />
-          Add Service
-        </Link>
+          New Service
+        </Button>
+
+        <PopupBottomRight
+          isOpen={showNewService}
+          onClose={() => setShowNewService(false)}
+          title="New Service"
+          subtitle="Quick create — add a service to your catalog"
+        >
+          <NewServiceForm
+            onSuccess={() => setShowNewService(false)}
+            onCancel={() => setShowNewService(false)}
+          />
+        </PopupBottomRight>
       </div>
 
       <Table
