@@ -7,12 +7,10 @@ import { createServiceSchema, updateServiceSchema } from "@invoice/shared";
 
 const router = Router();
 
-router.use(authMiddleware);
-
-router.get("/", authorize("ADMIN"), serviceController.getAllServices);
-router.get("/search", authorize("ADMIN"), serviceController.searchServices);
-router.get("/filter", authorize("ADMIN"), serviceController.filterServices);
-router.get("/:id", authorize("ADMIN"), serviceController.getServiceById);
+router.get("/", serviceController.getAllServices);
+router.get("/search", serviceController.searchServices);
+router.get("/filter", serviceController.filterServices);
+router.get("/:id", serviceController.getServiceById);
 router.post(
   "/",
   authorize("ADMIN"),

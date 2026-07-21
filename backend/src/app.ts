@@ -43,22 +43,19 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    success: true,
+app.get("/health", (_req, res) => {  
+  res.status(200).json({ 
+    success: true, 
     message: "Server is running",
   });
-});
-
-// TODO: Register API routes here
-// app.use("/api/v1", routes);
-app.use("/api/v1", routes);
+});     
  
-// TODO: Register global error handler here
-          
+app.use("/api/v1", routes); 
+ 
+           
 app.use(notFoundMiddleware);
 app.use(errorHandler); 
-      
-              
-export default app;
-  
+                 
+                                               
+export default app; 
+     

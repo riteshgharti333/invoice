@@ -7,18 +7,16 @@ import { authorize } from "../../common/middleware/authorize.middleware";
 
 const router = Router();
 
-// All routes require authentication
-router.use(authMiddleware);
 
 // Get all customers
-router.get("/", authorize("ADMIN"), customerController.getAllCustomers);
+router.get("/", customerController.getAllCustomers);
 
-router.get("/search", authorize("ADMIN"), customerController.searchCustomers);
+router.get("/search", customerController.searchCustomers);
 
-router.get("/filter", authorize("ADMIN"), customerController.filterCustomers);
+router.get("/filter", customerController.filterCustomers);
 
 // Get single customer
-router.get("/:id", authorize("ADMIN"), customerController.getCustomerById);
+router.get("/:id", customerController.getCustomerById);
 
 // Create customer
 router.post(

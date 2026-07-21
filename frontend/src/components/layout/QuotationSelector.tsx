@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TbSearch, TbQuote, TbX } from "react-icons/tb";
+import { TbSearch, TbQuote, TbLoader } from "react-icons/tb";
 import { useSearchQuotations } from "../../features/hooks/useQuotations";
 import { formatCurrency } from "../../utils/moneyCalc";
 import { FormSection } from "../ui/FormSection";
@@ -41,7 +41,7 @@ interface QuotationSelectorProps {
 export function QuotationSelector({ selected, onSelect, onClear }: QuotationSelectorProps) {
   const [search, setSearch] = useState("");
 
-  const { data: quotationsData } = useSearchQuotations({
+  const { data: quotationsData, isFetching: isSearching } = useSearchQuotations({
     q: search,
     status: "APPROVED",
   });
@@ -84,19 +84,29 @@ export function QuotationSelector({ selected, onSelect, onClear }: QuotationSele
         title="Select Approved Quotation"
         subtitle="Search and select an approved quotation to create invoice"
       >
-        <div className="relative">
-          <TbSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by customer name or quotation number..."
-            className="w-full pl-11 pr-4 py-3 bg-surface-hover rounded-2xl text-sm text-text-primary placeholder:text-text-muted border-2 border-transparent focus:border-brand/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
-          />
+        <div>
+          {/* Input + Spinner Container */}
+          <div className="relative">
+            <TbSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by customer name or quotation number..."
+              className="w-full pl-11 pr-10 py-3 bg-surface-hover rounded-2xl text-sm text-text-primary placeholder:text-text-muted border-2 border-transparent focus:border-brand/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+            />
+
+            {/* 🔵 Loading Spinner — Right Side */}
+            {isSearching && (
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                <TbLoader size={16} className="text-brand animate-spin" />
+              </div>
+            )}
+          </div>
 
           {/* Results */}
           {search && quotations.length > 0 && (
-            <div className="absolute z-10 w-full mt-2 bg-white border border-border rounded-2xl shadow-xl max-h-56 overflow-y-auto divide-y divide-border">
+            <div className="mt-2 bg-white border border-border rounded-2xl shadow-xl max-h-56 overflow-y-auto divide-y divide-border">
               {quotations.map((q) => (
                 <button
                   key={q.id}
@@ -124,8 +134,8 @@ export function QuotationSelector({ selected, onSelect, onClear }: QuotationSele
           )}
 
           {/* No Results */}
-          {search && quotations.length === 0 && (
-            <div className="absolute z-10 w-full mt-2 bg-white border border-border rounded-2xl shadow-xl p-6 text-center">
+          {search && !isSearching && quotations.length === 0 && (
+            <div className="mt-2 bg-white border border-border rounded-2xl shadow-xl p-6 text-center">
               <div className="w-10 h-10 bg-surface-hover rounded-xl flex items-center justify-center mx-auto mb-2">
                 <TbSearch size={18} className="text-text-muted" />
               </div>

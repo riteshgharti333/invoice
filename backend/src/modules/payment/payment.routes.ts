@@ -7,12 +7,11 @@ import { authorize } from "../../common/middleware/authorize.middleware";
 
 const router = Router();
 
-router.use(authMiddleware);
 
-router.get("/", authorize("ADMIN"), paymentController.getAllPayments);
-router.get("/search", authorize("ADMIN"), paymentController.searchPayments);
-router.get("/filter", authorize("ADMIN"), paymentController.filterPayments);
-router.get("/invoice/:invoiceId", authorize("ADMIN"), paymentController.getPaymentsByInvoice);
+router.get("/", paymentController.getAllPayments);
+router.get("/search", paymentController.searchPayments);
+router.get("/filter", paymentController.filterPayments);
+router.get("/invoice/:invoiceId", paymentController.getPaymentsByInvoice);
 router.get("/:id", authorize("ADMIN"), paymentController.getPaymentById);
 router.post("/", authorize("ADMIN"), validate(createPaymentSchema), paymentController.createPayment);
 router.put("/:id", authorize("ADMIN"), validate(updatePaymentSchema), paymentController.updatePayment);

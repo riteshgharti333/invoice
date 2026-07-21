@@ -22,7 +22,6 @@ export const customerApi = {
     axiosInstance
       .get<ApiResponse<PaginatedResponse<Customer>>>("/customer", { params })
       .then((res) => {
-        console.log("Response Data:", res.data);
         return res.data;
       }),
 

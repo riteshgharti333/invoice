@@ -70,13 +70,8 @@ export function FormLayout({
 
         {/* Actions Footer */}
         <div className="flex items-center justify-between px-8 py-5 bg-surface-hover border-t border-border">
-          <div>
-            {extraAction && (
-              <Button variant="secondary" type="button" onClick={extraAction}>
-                {extraLabel || "Action"}
-              </Button>
-            )}
-          </div>
+        
+          <div />
           <div className="flex items-center gap-3">
             {onCancel && (
               <Button variant="secondary" type="button" onClick={onCancel}>

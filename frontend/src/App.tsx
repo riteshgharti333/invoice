@@ -6,9 +6,6 @@ import Quotations from "./pages/TablePage/Quotations";
 import Customers from "./pages/TablePage/Customers";
 import Services from "./pages/TablePage/Services";
 import Categories from "./pages/TablePage/Categories";
-import NewCustomer from "./pages/NewPage/NewCustomer";
-import NewService from "./pages/NewPage/NewService";
-import NewCategory from "./pages/NewPage/NewCategory";
 import NewInvoice from "./pages/NewPage/NewInvoice";
 import UpdateInvoice from "./pages/UpdatePage/UpdateInvoice";
 import UpdateQuotation from "./pages/UpdatePage/UpdateQuotation";
@@ -19,7 +16,6 @@ import Profile from "./pages/auth/Profile";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";  
 import Payments from "./pages/TablePage/Payments";
-import NewPayment from "./pages/NewPage/NewPayment";
 import UpdatePayment from "./pages/UpdatePage/UpdatePayment";
 import NewQuotation from "./pages/NewPage/NewQuotation";
 import Setting from "./pages/auth/Setting"; 
@@ -53,12 +49,8 @@ function App() {
           <Route path="/payments" element={<Payments />} />
           <Route path="/settings" element={<Setting />} />
           // NEW
-          <Route path="/customer/new-customer" element={<NewCustomer />} />
-          <Route path="/service/new-service" element={<NewService />} />
-          <Route path="/category/new-category" element={<NewCategory />} />
           <Route path="/invoice/new-invoice" element={<NewInvoice />} />
           <Route path="/quotation/new-quotation" element={<NewQuotation />} />
-          <Route path="/payment/new-payment" element={<NewPayment />} />
           //UPDATE
           <Route path="/invoice/:id" element={<UpdateInvoice />} />
           <Route path="/quotation/:id" element={<UpdateQuotation />} />

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  TbArrowLeft,
   TbUserPlus,
   TbMail,
   TbPhone,
@@ -9,6 +8,7 @@ import {
   TbBuilding,
   TbCheck,
   TbLoader,
+  TbFileText,
 } from "react-icons/tb";
 import type { CreateCustomerDto } from "@invoice/shared/types";
 import {
@@ -16,6 +16,9 @@ import {
   useUpdateCustomer,
 } from "../../features/hooks/useCustomers";
 import { updateCustomerSchema } from "@invoice/shared";
+import { FormLayout } from "../../components/ui/FormLayout";
+import { FormSection } from "../../components/ui/FormSection";
+import { FormField } from "../../components/ui/FormField";
 
 interface Field {
   name: keyof CreateCustomerDto | "isActive";
@@ -32,7 +35,7 @@ interface Field {
 const formFields: Field[] = [
   {
     name: "name",
-    label: "Name",
+    label: "Full Name",
     type: "text",
     placeholder: "Enter customer name",
     icon: TbUserPlus,
@@ -40,14 +43,14 @@ const formFields: Field[] = [
   },
   {
     name: "email",
-    label: "Email",
+    label: "Email Address",
     type: "email",
     placeholder: "customer@example.com",
     icon: TbMail,
   },
   {
     name: "phone",
-    label: "Phone",
+    label: "Phone Number",
     type: "text",
     placeholder: "+91 98765 43210",
     icon: TbPhone,
@@ -55,7 +58,7 @@ const formFields: Field[] = [
   },
   {
     name: "address",
-    label: "Address",
+    label: "Billing Address",
     type: "textarea",
     placeholder: "Enter complete address",
     icon: TbMapPin,
@@ -75,7 +78,7 @@ const formFields: Field[] = [
     label: "Notes",
     type: "textarea",
     placeholder: "Any additional notes...",
-    icon: TbMapPin,
+    icon: TbFileText,
     rows: 3,
   },
 ];
@@ -101,13 +104,9 @@ export default function UpdateCustomer() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Fetch customer data
   const { data: customer, isLoading } = useCustomer(id!);
-
-  // Update mutation
   const { mutate: updateCustomer, isPending } = useUpdateCustomer();
 
-  // Populate form when customer data is loaded
   useEffect(() => {
     if (customer) {
       setFormData({
@@ -124,7 +123,6 @@ export default function UpdateCustomer() {
 
   const validate = (): boolean => {
     const { isActive, ...dataToValidate } = formData;
-
     const result = updateCustomerSchema.shape.body.safeParse(dataToValidate);
 
     if (!result.success) {
@@ -149,9 +147,7 @@ export default function UpdateCustomer() {
         : value;
 
     setFormData((prev) => ({ ...prev, [name]: finalValue }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -160,20 +156,7 @@ export default function UpdateCustomer() {
 
     const { isActive, ...updateData } = formData;
 
-    updateCustomer(
-      {
-        id: id!,
-        data: { ...updateData, isActive },
-      },
-      {
-        onSuccess: () => {
-          setShowSuccess(true);
-          setTimeout(() => {
-            navigate("/customers");
-          }, 1500);
-        },
-      },
-    );
+    updateCustomer({ id: id!, data: { ...updateData, isActive } });
   };
 
   const basicFields = formFields.filter((f) =>
@@ -188,49 +171,43 @@ export default function UpdateCustomer() {
     const hasError = !!errors[field.name];
 
     return (
-      <div key={field.name}>
-        <label className="block text-sm font-medium text-text-primary mb-1.5">
-          {field.label}
-          {field.required && <span className="text-danger ml-1">*</span>}
-        </label>
-
-        <div className="relative">
-          {field.type !== "textarea" && (
-            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          )}
-
-          {field.type === "textarea" ? (
-            <>
-              <Icon className="absolute left-3 top-3 w-4 h-4 text-text-muted" />
-              <textarea
-                value={formData[field.name] as string}
-                onChange={(e) => handleChange(field.name, e.target.value)}
-                placeholder={field.placeholder}
-                rows={field.rows || 3}
-                maxLength={field.maxLength}
-                className={`w-full pl-10 pr-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all resize-none ${
-                  hasError ? "border-danger" : "border-border"
-                }`}
-              />
-            </>
-          ) : (
-            <input
-              type={field.type}
-              value={formData[field.name] as string}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-              placeholder={field.placeholder}
-              maxLength={field.maxLength}
-              className={`w-full pl-10 pr-4 py-2.5 bg-surface border rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
-                field.name === "gstNumber" ? "font-mono" : ""
-              } ${hasError ? "border-danger" : "border-border"}`}
-            />
-          )}
-        </div>
-
-        {hasError && (
-          <p className="text-danger text-xs mt-1">{errors[field.name]}</p>
+      <FormField
+        key={field.name}
+        label={field.label}
+        required={field.required}
+        error={errors[field.name]}
+        icon={field.type !== "textarea" ? (Icon as any) : undefined}
+      >
+        {field.type === "textarea" ? (
+          <textarea
+            value={formData[field.name] as string}
+            onChange={(e) => handleChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            rows={field.rows || 3}
+            maxLength={field.maxLength}
+            className={`w-full px-4 py-3 bg-surface-hover rounded-2xl text-sm text-text-primary placeholder:text-text-muted border-2 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all resize-none ${
+              hasError
+                ? "border-danger/50 focus:border-danger focus:ring-danger/20"
+                : "border-transparent focus:border-brand/30"
+            }`}
+          />
+        ) : (
+          <input
+            type={field.type}
+            value={formData[field.name] as string}
+            onChange={(e) => handleChange(field.name, e.target.value)}
+            placeholder={field.placeholder}
+            maxLength={field.maxLength}
+            className={`w-full pl-11 pr-4 py-3 bg-surface-hover rounded-2xl text-sm text-text-primary placeholder:text-text-muted border-2 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:bg-white transition-all ${
+              field.name === "gstNumber" ? "font-mono tracking-wide" : ""
+            } ${
+              hasError
+                ? "border-danger/50 focus:border-danger focus:ring-danger/20"
+                : "border-transparent focus:border-brand/30"
+            }`}
+          />
         )}
-      </div>
+      </FormField>
     );
   };
 
@@ -248,141 +225,38 @@ export default function UpdateCustomer() {
     );
   }
 
-  if (showSuccess) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 bg-success-light rounded-3xl flex items-center justify-center mx-auto mb-6 animate-bounce">
-            <TbCheck size={36} className="text-success" />
-          </div>
-          <h2 className="text-2xl font-bold text-text-primary mb-2">
-            Customer Updated!
-          </h2>
-          <p className="text-text-secondary">
-            Redirecting to customers page...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => navigate("/customers")}
-          className="p-2 hover:bg-surface-hover rounded-xl transition-colors"
+      <FormLayout
+        title="Update Customer"
+        subtitle="Edit customer information"
+        icon={TbUserPlus}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate("/customers")}
+        isPending={isPending}
+        submitLabel="Update Customer"
+      >
+        {/* Basic Information */}
+        <FormSection
+          icon={TbUserPlus}
+          title="Basic Information"
+          subtitle="Required fields marked with *"
         >
-          <TbArrowLeft size={20} className="text-text-secondary" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">
-            Update Customer
-          </h1>
-          <p className="text-text-secondary text-sm mt-1">
-            Edit customer information
-          </p>
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Info */}
-        <div className="bg-white rounded-2xl border border-border p-6 space-y-5">
-          <div className="flex items-center gap-3 pb-4 border-b border-border-light">
-            <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center">
-              <TbUserPlus size={20} className="text-brand" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-text-primary">
-                Basic Information
-              </h2>
-              <p className="text-xs text-text-muted">
-                Required fields are marked with *
-              </p>
-            </div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {basicFields.map(renderField)}
           </div>
-        </div>
+        </FormSection>
 
-        {/* Additional Info */}
-        <div className="bg-white rounded-2xl border border-border p-6 space-y-5">
-          <div className="flex items-center gap-3 pb-4 border-b border-border-light">
-            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-              <TbBuilding size={20} className="text-text-secondary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-text-primary">
-                Additional Details
-              </h2>
-              <p className="text-xs text-text-muted">Optional information</p>
-            </div>
-          </div>
+        {/* Additional Details */}
+        <FormSection
+          icon={TbBuilding}
+          title="Additional Details"
+          subtitle="Optional information"
+          variant="muted"
+        >
           <div className="space-y-4">{additionalFields.map(renderField)}</div>
-        </div>
-
-        {/* Status Toggle */}
-        <div className="bg-white rounded-2xl border border-border p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                <TbCheck size={20} className="text-text-secondary" />
-              </div>
-              <div>
-                <h3 className="font-medium text-text-primary text-sm">
-                  Active Status
-                </h3>
-                <p className="text-xs text-text-muted">
-                  Inactive customers won't appear in dropdowns
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => handleChange("isActive", !formData.isActive)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                formData.isActive ? "bg-success" : "bg-slate-300"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  formData.isActive ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => navigate("/customers")}
-            className="px-6 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-hover rounded-xl transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="flex items-center gap-2 px-6 py-2.5 bg-brand text-white text-sm font-medium rounded-xl hover:opacity-90 transition-all shadow-lg shadow-brand/25 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPending ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Updating...
-              </>
-            ) : (
-              <>
-                <TbUserPlus size={18} />
-                Update Customer
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        </FormSection>
+      </FormLayout>
     </div>
   );
 }

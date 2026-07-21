@@ -1,11 +1,10 @@
 import { type ReactNode } from "react";
-import { type IconType } from "react-icons";
 
 interface FormFieldProps {
   label: string;
   required?: boolean;
   error?: string;
-  icon?: IconType;
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
   helper?: string;
   children: ReactNode;
   className?: string;

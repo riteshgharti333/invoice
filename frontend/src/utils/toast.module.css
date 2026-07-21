@@ -1,49 +1,105 @@
 .viewport {
   position: fixed;
-  top: 20px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   z-index: 9999;
   outline: none;
 }
 
 .toast {
-  background: #fff;
-  border-radius: 8px;
-  padding: 16px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: slideIn 150ms ease-out;
-  border: 2px solid;
+  padding: 12px 14px 12px 18px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  max-width: 420px;
+  animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast[data-state="closed"] {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
 }
 
 .success {
-  border-color: #22c55e;
+  background: #059669;
 }
 
 .error {
-  border-color: #ef4444;
+  background: #DC2626;
 }
 
 .info {
-  border-color: #3b82f6;
+  background: #2563EB;
+}
+
+.iconBox {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.icon {
+  color: white;
 }
 
 .title {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.4;
+  flex: 1;
 }
 
-@keyframes slideIn {
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideDown {
   from {
-    transform: translateX(100%);
+    transform: translateY(-20px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
   }
 }

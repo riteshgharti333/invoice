@@ -3,7 +3,6 @@ import { toast } from './toast';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1',
-  timeout: 10000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -13,7 +12,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (!error.response) {
+    if (!error.response) { 
       toast.error('Network error! Please check your connection.');
       return Promise.reject(error);
     }

@@ -29,10 +29,10 @@ export const authApi = {
 
   me: () => axiosInstance.get<UserResponse>("/auth/me").then((res) => res.data),
 
- logout: async () => {
-  console.log('Calling logout...');
-  const response = await axiosInstance.post('/auth/logout');
-  console.log('Logout response:', response.data);
-  return response.data;
-},
+  logout: async () => {
+    console.log("Calling logout...");
+    const response = await axiosInstance.post("/auth/logout");
+    console.log("Logout response:", response.data);
+    return response.data;
+  },
 };

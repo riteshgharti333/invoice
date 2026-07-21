@@ -11,12 +11,10 @@ import { authorize } from "../../common/middleware/authorize.middleware";
 
 const router = Router();
 
-router.use(authMiddleware);
-
-router.get("/", authorize("ADMIN"), invoiceController.getAllInvoices);
-router.get("/search", authorize("ADMIN"), invoiceController.searchInvoices);
-router.get("/filter", authorize("ADMIN"), invoiceController.filterInvoices);
-router.get("/:id", authorize("ADMIN"), invoiceController.getInvoiceById);
+router.get("/", invoiceController.getAllInvoices);
+router.get("/search", invoiceController.searchInvoices);
+router.get("/filter", invoiceController.filterInvoices);
+router.get("/:id", invoiceController.getInvoiceById);
 router.post(
   "/",
   authorize("ADMIN"),

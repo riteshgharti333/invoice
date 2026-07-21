@@ -18,10 +18,10 @@ const startServer = async () => {
       process.exit(1);
     }
 
-    // Optional: Run a simple query to verify connection
+    // Optional: Run a simple query to verify connection 
     await prisma.$queryRaw`SELECT 1`;
     logger.info("Database connection verified with test query");
-
+ 
     // Start server
     server.listen(env.PORT, () => {
       logger.info(`Server listening on port ${env.PORT}`);
@@ -29,10 +29,10 @@ const startServer = async () => {
   } catch (error) {
     logger.error("Failed to start server", { error });
     process.exit(1);
-  }
-};
+  } 
+};                    
 
-// Graceful shutdown with database disconnection
+// Graceful shutdown with database disconnection 
 const gracefulShutdown = async (signal: NodeJS.Signals) => {
   logger.info(`${signal} received. Starting graceful shutdown...`);
 

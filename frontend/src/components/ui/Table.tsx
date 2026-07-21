@@ -225,7 +225,7 @@ export function Table<T extends { id: string }>({
             placeholder={searchConfig.placeholder || "Search..."}
             value={debouncedTerm}
             onChange={(e) => setDebouncedTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-surface-hover rounded-2xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-brand focus:bg-white transition-all border border-transparent focus:border-brand"
+            className="w-full pl-10 pr-4 py-2.5 bg-white rounded-2xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-brand focus:bg-white transition-all border border-transparent focus:border-brand"
           />
         </div>
 

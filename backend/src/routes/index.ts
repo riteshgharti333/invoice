@@ -27,8 +27,4 @@ router.use("/quotation", quotationRouter);
 router.use("/invoice", invoiceRouter);
 router.use("/payment", paymentRouter);
 
-
-
-
-
 export default router;

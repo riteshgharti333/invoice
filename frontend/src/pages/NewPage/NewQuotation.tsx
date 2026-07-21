@@ -83,9 +83,11 @@ export default function NewQuotation() {
 
   // Fetch services
   const { data: servicesData } = useServices({ cursor: "" });
-  const { data: searchedServices } = useSearchServices({
-    q: serviceSearch.global || "",
-  });
+  const { data: searchedServices, isFetching: isSearchingServices } =
+    useSearchServices({
+      q: serviceSearch.global || "",
+    });
+
   const services = extractListData<Service>(
     serviceSearch.global ? searchedServices : servicesData,
   );
@@ -245,18 +247,6 @@ export default function NewQuotation() {
     });
   };
 
-  // ─── Loading ──────────────────────────────────
-  if (isPending) {
-    return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-brand/30 border-t-brand rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-text-secondary">Creating quotation...</p>
-        </div>
-      </div>
-    );
-  }
-
   // ─── Render ───────────────────────────────────
   return (
     <div className="max-w-4xl mx-auto">
@@ -307,7 +297,7 @@ export default function NewQuotation() {
           </div>
         </FormSection>
 
-        {/* Line Items */}
+      {/* Line Items */}
         <LineItemsSection
           items={formData.items}
           services={services}
@@ -320,6 +310,7 @@ export default function NewQuotation() {
           onAddItem={addItem}
           onRemoveItem={removeItem}
           subtitle="Add services to quotation"
+          isSearchingServices={isSearchingServices}
         />
 
         {/* Summary */}

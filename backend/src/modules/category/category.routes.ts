@@ -6,13 +6,12 @@ import { categoryController } from "./category.controller";
 import { createCategorySchema, updateCategorySchema } from "@invoice/shared";
 
 const router = Router();
- 
-router.use(authMiddleware);
 
-router.get("/", authorize("ADMIN"), categoryController.getAllCategories);
-router.get("/search", authorize("ADMIN"), categoryController.searchCategories);
-router.get("/filter", authorize("ADMIN"), categoryController.filterCategories);
-router.get("/:id", authorize("ADMIN"), categoryController.getCategoryById);
+
+router.get("/", categoryController.getAllCategories);
+router.get("/search", categoryController.searchCategories);
+router.get("/filter", categoryController.filterCategories);
+router.get("/:id", categoryController.getCategoryById);
 router.post(
   "/",
   authorize("ADMIN"),
