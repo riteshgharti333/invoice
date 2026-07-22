@@ -71,21 +71,26 @@ export class PaymentRepository {
     });
   }
 
-  async update(id: string, data: {
-    amount?: number;
-    paymentMethod?: string;
-    paymentDate?: Date;
-    transactionNumber?: string;
-    notes?: string;
-    status?: string;
-  }) {
+  async update(
+    id: string,
+    data: {
+      amount?: number;
+      paymentMethod?: string;
+      paymentDate?: Date;
+      transactionNumber?: string;
+      notes?: string;
+      status?: string;
+    },
+  ) {
     return prisma.payment.update({
       where: { id },
       data: {
         ...(data.amount !== undefined && { amount: data.amount }),
         ...(data.paymentMethod && { paymentMethod: data.paymentMethod as any }),
         ...(data.paymentDate && { paymentDate: data.paymentDate }),
-        ...(data.transactionNumber !== undefined && { transactionNumber: data.transactionNumber }),
+        ...(data.transactionNumber !== undefined && {
+          transactionNumber: data.transactionNumber,
+        }),
         ...(data.notes !== undefined && { notes: data.notes }),
         ...(data.status && { status: data.status as any }),
       },
@@ -122,53 +127,89 @@ export class PaymentRepository {
     return result._sum.amount || 0;
   }
 
-
-
   async search(args: any) {
-  return prisma.payment.findMany({
-    ...args,
-    include: {
-      invoice: {
-        select: {
-          id: true,
-          invoiceNumber: true,
-          customer: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
+    return prisma.payment.findMany({
+      ...args,
+      include: {
+        invoice: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+            customer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
             },
           },
         },
       },
-    },
-  });
-}
+    });
+  }
 
-async filter(args: any) {
-  return prisma.payment.findMany({
-    ...args,
-    include: {
-      invoice: {
-        select: {
-          id: true,
-          invoiceNumber: true,
-          customer: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
+  async filter(args: any) {
+    return prisma.payment.findMany({
+      ...args,
+      include: {
+        invoice: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+            customer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
             },
           },
         },
       },
-    },
-  });
-}
-}
+    });
+  }
+  async getMethodBreakdown(startDate?: Date, endDate?: Date) {
+    const methods = [
+      "CASH",
+      "BANK_TRANSFER",
+      "UPI",
+      "CREDIT_CARD",
+      "DEBIT_CARD",
+      "PAYPAL",
+      "OTHER",
+    ];
 
+    const where: any = {};
+    if (startDate || endDate) {
+      where.paymentDate = {};
+      if (startDate) where.paymentDate.gte = startDate;
+      if (endDate) where.paymentDate.lte = endDate;
+    }
 
+    const result = await Promise.all(
+      methods.map(async (method) => {
+        const count = await prisma.payment.count({
+          where: { ...where, paymentMethod: method },
+        });
+
+        const total = await prisma.payment.aggregate({
+          where: { ...where, paymentMethod: method },
+          _sum: { amount: true },
+        });
+
+        return {
+          method,
+          count,
+          total: Number(total._sum.amount) || 0,
+        };
+      }),
+    );
+
+    // Filter out methods with 0 count, sort by total descending
+    return result.filter((r) => r.count > 0).sort((a, b) => b.total - a.total);
+  }
+}
 
 export const paymentRepository = new PaymentRepository();

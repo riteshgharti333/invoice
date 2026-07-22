@@ -207,7 +207,7 @@ export function Table<T extends { id: string }>({
     <tr className="animate-pulse">
       {columns.map((col) => (
         <td key={col.key || col.accessorKey} className="px-6 py-4">
-          <div className="h-4 bg-slate-100 rounded-full w-3/4"></div>
+          <div className="h-4 bg-white rounded-full w-3/4"></div>
         </td>
       ))}
     </tr>

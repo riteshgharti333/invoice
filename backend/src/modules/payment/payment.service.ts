@@ -18,7 +18,7 @@ export class PaymentService {
     const existingPayment = await paymentRepository.findByPaymentNumber(code);
     if (existingPayment) {
       return generateCode("PAY", count + 1);
-    }
+    } 
 
     return code;
   }

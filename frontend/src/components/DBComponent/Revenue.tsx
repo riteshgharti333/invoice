@@ -1,45 +1,52 @@
 import Chart from "react-apexcharts";
+import { motion } from "framer-motion";
+import { TbChartBar, TbArrowUpRight, TbArrowDownRight, TbMinus } from "react-icons/tb";
 
-const monthlyData = [
-  { month: "Jan", revenue: 65000 },
-  { month: "Feb", revenue: 78000 },
-  { month: "Mar", revenue: 55000 },
-  { month: "Apr", revenue: 92000 },
-  { month: "May", revenue: 85000 },
-  { month: "Jun", revenue: 75000 },
-  { month: "Jul", revenue: 68000 },
-  { month: "Aug", revenue: 88000 },
-  { month: "Sep", revenue: 72000 },
-  { month: "Oct", revenue: 95000 },
-  { month: "Nov", revenue: 82000 },
-  { month: "Dec", revenue: 70000 },
-];
+interface MonthlyData {
+  month: string;
+  revenue: number;
+}
 
-export default function Revenue() {
-  const totalRevenue = monthlyData.reduce((sum, d) => sum + d.revenue, 0);
+interface RevenueProps {
+  data?: {
+    total: number;
+    subtitle: string;
+    months: MonthlyData[];
+  };
+  isLoading?: boolean;
+}
+
+export default function Revenue({ data, isLoading }: RevenueProps) {
+  if (isLoading || !data) {
+    return (
+      <div className="bg-white rounded-3xl border border-border p-6 animate-pulse h-[400px]" />
+    );
+  }
+
+  const { total, subtitle, months } = data;
+
+  const isPositive = subtitle.startsWith("+");
+  const isNegative = subtitle.startsWith("-");
+  const TrendIcon = isPositive ? TbArrowUpRight : isNegative ? TbArrowDownRight : TbMinus;
+  const trendColor = isPositive ? "text-emerald-600" : isNegative ? "text-rose-600" : "text-text-muted";
 
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: "bar",
       toolbar: { show: false },
-      sparkline: { enabled: false },
       fontFamily: "Inter, sans-serif",
       background: "transparent",
       animations: {
         enabled: true,
-        speed: 600,
-        animateGradually: { enabled: true, delay: 80 },
-        dynamicAnimation: { enabled: true, speed: 350 },
+        speed: 800,
+        animateGradually: { enabled: true, delay: 100 },
       },
     },
     plotOptions: {
       bar: {
-        borderRadius: 12,
+        borderRadius: 10,
         borderRadiusApplication: "end",
-        columnWidth: "50%",
-        colors: {
-          backgroundBarColors: [],
-        },
+        columnWidth: "55%",
       },
     },
     colors: ["#2563EB"],
@@ -50,137 +57,89 @@ export default function Revenue() {
         type: "vertical",
         shadeIntensity: 0,
         gradientToColors: ["#3B82F6"],
-        inverseColors: false,
         opacityFrom: 1,
-        opacityTo: 0.85,
+        opacityTo: 0.7,
         stops: [0, 100],
       },
     },
-    stroke: {
-      show: true,
-      width: 0,
-      colors: ["transparent"],
-    },
     grid: {
-      show: true,
       borderColor: "#F1F5F9",
-      strokeDashArray: 0,
-      position: "back",
-      xaxis: {
-        lines: { show: false },
-      },
-      yaxis: {
-        lines: { show: true },
-      },
-      padding: {
-        top: 8,
-        right: 0,
-        bottom: 0,
-        left: 0,
-      },
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
     },
     xaxis: {
-      categories: monthlyData.map((d) => d.month),
-      labels: {
-        show: true,
-        style: {
-          fontSize: "12px",
-          fontWeight: 600,
-          fontFamily: "Inter, sans-serif",
-          colors: "#94A3B8",
-        },
-      },
+      categories: months.map((d) => d.month),
+      labels: { style: { fontSize: "12px", fontWeight: 500, colors: "#94A3B8" } },
       axisBorder: { show: false },
       axisTicks: { show: false },
     },
     yaxis: {
-      show: true,
       labels: {
-        show: true,
-        style: {
-          fontSize: "11px",
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
-          colors: "#94A3B8",
-        },
-        formatter: (value) => {
+        style: { fontSize: "11px", fontWeight: 500, colors: "#94A3B8" },
+        formatter: (value: number) => {
           if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
           return `₹${(value / 1000).toFixed(0)}K`;
         },
       },
     },
     tooltip: {
-      enabled: true,
-      followCursor: true,
-      intersect: false,
-      shared: false,
       custom: ({ dataPointIndex, w }) => {
         const value = w.globals.series[0][dataPointIndex];
         const month = w.globals.labels[dataPointIndex];
         return `
-          <div style="
-            border-radius: 14px;
-            padding: 12px 16px;
-            font-family: Inter, sans-serif;
-          ">
-            <p style="font-size: 11px; font-weight: 500; color: #94A3B8; margin: 0 0 4px 0;">${month} 2026</p>
-            <p style="font-size: 18px; font-weight: 700; color: black; margin: 0;">
-              ₹${value.toLocaleString("en-IN")}
-            </p>
+          <div style="background: white; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px 16px; box-shadow: 0 16px 40px rgba(0,0,0,0.1);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <div style="width: 8px; height: 8px; border-radius: 4px; background: #2563EB;"></div>
+              <p style="font-size: 11px; font-weight: 600; color: #94A3B8; text-transform: uppercase; margin: 0;">${month}</p>
+            </div>
+            <p style="font-size: 18px; font-weight: 700; color: #0F172A; margin: 0;">₹${value.toLocaleString("en-IN")}</p>
           </div>
         `;
-      },
-    },
-    states: {
-      hover: {
-        filter: {
-          type: "none",
-        },
-      },
-      active: {
-        filter: {
-          type: "none",
-        },
       },
     },
     dataLabels: { enabled: false },
     legend: { show: false },
   };
 
-  const chartSeries = [
-    {
-      name: "Revenue",
-      data: monthlyData.map((d) => d.revenue),
-    },
-  ];
+  const chartSeries = [{ name: "Revenue", data: months.map((d) => d.revenue) }];
 
   return (
-    <div className="bg-white rounded-3xl border border-border p-6">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h3 className="text-lg font-bold text-text-primary">
-            Monthly Revenue
-          </h3>
-          <p className="text-xs text-text-muted mt-0.5">
-            Revenue overview for 2026
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-extrabold text-brand tracking-tight">
-            ₹{totalRevenue.toLocaleString("en-IN")}
-          </p>
-          <p className="text-[11px] text-text-muted text-right">yearly total</p>
-        </div>
-      </div>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="relative overflow-hidden bg-white rounded-3xl border border-border p-6 hover:shadow-xl transition-all duration-300"
+    >
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-50 rounded-full opacity-60" />
+      <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-indigo-50 rounded-full opacity-60" />
 
-      <div className="-mx-3">
-        <Chart
-          options={chartOptions}
-          series={chartSeries}
-          type="bar"
-          height={310}
-        />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <TbChartBar size={18} className="text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-text-primary text-sm">Monthly Revenue</h3>
+              <p className="text-xs text-text-muted">Revenue overview for 2026</p>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <p className="text-lg font-bold text-text-primary tracking-tight">
+              ₹{total.toLocaleString("en-IN")}
+            </p>
+            <div className="flex items-center gap-1 justify-end mt-0.5">
+              <TrendIcon size={12} className={trendColor} />
+              <p className={`text-[11px] font-medium ${trendColor}`}>{subtitle}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="-mx-2">
+          <Chart options={chartOptions} series={chartSeries} type="bar" height={280} />
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

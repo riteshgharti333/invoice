@@ -8,6 +8,7 @@ import { categoryRouter } from "../modules/category/category.routes";
 import { quotationRouter } from "../modules/quotation/quotation.routes";
 import { invoiceRouter } from "../modules/invoice/invoice.routes";
 import { paymentRouter } from "../modules/payment/payment.routes";
+import { dashboardRouter } from "../modules/dashboard/dashboard.route";
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get("/health", (_req, res) => {
     message: "API is healthy",
   });
 });
-
+ 
 router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/customer", customerRouter);
@@ -26,5 +27,7 @@ router.use("/category", categoryRouter);
 router.use("/quotation", quotationRouter);
 router.use("/invoice", invoiceRouter);
 router.use("/payment", paymentRouter);
+router.use("/dashboard", dashboardRouter);
+
 
 export default router;

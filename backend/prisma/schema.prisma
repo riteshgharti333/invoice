@@ -54,7 +54,6 @@ model Customer {
   address      String?
   gstNumber    String?
   notes        String?
-  isActive     Boolean  @default(true)
 
   quotations   Quotation[]
   invoices     Invoice[]

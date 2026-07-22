@@ -1,4 +1,3 @@
-// src/features/api/payment.api.ts
 import axiosInstance from '../../utils/axios';
 import type { Payment, CreatePaymentDto, UpdatePaymentDto } from '@invoice/shared/types';
 

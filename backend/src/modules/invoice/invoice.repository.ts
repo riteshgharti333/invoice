@@ -245,6 +245,115 @@ export class InvoiceRepository {
       },
     });
   }
+
+  async getTotalRevenue(startDate?: Date, endDate?: Date) {
+    const where: any = {
+      status: "PAID",
+    };
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    const result = await prisma.invoice.aggregate({
+      where,
+      _sum: { total: true },
+    });
+
+    return Number(result._sum.total) || 0;
+  }
+
+  async getOutstandingTotal(startDate?: Date, endDate?: Date) {
+    const where: any = {
+      status: { in: ["SENT", "OVERDUE"] },
+    };
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    const result = await prisma.invoice.aggregate({
+      where,
+      _sum: { total: true },
+    });
+
+    return Number(result._sum.total) || 0;
+  }
+
+  async getOverdueCount(startDate?: Date, endDate?: Date) {
+    const where: any = {
+      status: "OVERDUE",
+    };
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    return prisma.invoice.count({ where });
+  }
+
+  async getTotalCount(startDate?: Date, endDate?: Date) {
+    const where: any = {};
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    return prisma.invoice.count({ where });
+  }
+
+  async getCountThisMonth() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    return prisma.invoice.count({
+      where: {
+        issueDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+      },
+    });
+  }
+
+  async getMonthlyRevenue(startDate: Date, endDate: Date) {
+    const result = await prisma.invoice.aggregate({
+      where: {
+        status: "PAID",
+        issueDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      _sum: { total: true },
+    });
+
+    return Number(result._sum.total) || 0;
+  }
+
+  async getStatusBreakdown() {
+  const statuses = ["PAID", "SENT", "OVERDUE", "DRAFT", "CANCELLED"];
+  
+  const result = await Promise.all(
+    statuses.map(async (status) => {
+      const count = await prisma.invoice.count({
+        where: { status: status as any },
+      });
+      return { status, count };
+    })
+  );
+
+  return result;
+}
 }
 
 export const invoiceRepository = new InvoiceRepository();

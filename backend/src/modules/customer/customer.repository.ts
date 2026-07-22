@@ -54,7 +54,6 @@ export class CustomerRepository {
       address?: string;
       gstNumber?: string;
       notes?: string;
-      isActive?: boolean;
     },
   ) {
     return prisma.customer.update({

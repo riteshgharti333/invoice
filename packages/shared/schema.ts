@@ -66,8 +66,6 @@ export const updateCustomerSchema = z.object({
       .string()
       .max(1000, "Notes must not exceed 1000 characters")
       .optional(),
-
-    isActive: z.boolean().optional(),
   }),
 });
 
@@ -125,7 +123,7 @@ export const createServiceSchema = z.object({
       .max(100, "Tax rate cannot exceed 100")
       .optional(),
   }),
-});
+}); 
 
 export const updateServiceSchema = z.object({
   body: z.object({
@@ -154,7 +152,6 @@ export const updateServiceSchema = z.object({
   }),
 });
 
-// Quotation Schemas
 // Quotation Schemas
 export const createQuotationSchema = z.object({
   body: z.object({
@@ -367,6 +364,7 @@ export const paymentStatusSchema = z.enum([
 
 export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
+
 
 export const createPaymentSchema = z.object({
   body: z.object({

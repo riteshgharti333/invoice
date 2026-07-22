@@ -7,7 +7,6 @@ export interface Customer {
   address?: string | null;
   gstNumber?: string | null;
   notes?: string | null;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }

@@ -44,13 +44,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check
 app.get("/health", (_req, res) => {  
-  res.status(200).json({ 
-    success: true, 
-    message: "Server is running",
+  res.status(200).json({  
+    success: true,  
+    message: "Server is running",       
   });
 });     
  
-app.use("/api/v1", routes); 
+app.use("/api/v1", routes);  
  
            
 app.use(notFoundMiddleware);

@@ -14,5 +14,4 @@ export interface UpdateCustomerDto {
   address?: string;
   gstNumber?: string;
   notes?: string;
-  isActive?: boolean;
 }

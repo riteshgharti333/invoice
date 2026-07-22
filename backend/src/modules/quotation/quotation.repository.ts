@@ -209,26 +209,66 @@ export class QuotationRepository {
   }
 
   async filter(args: any) {
-  return prisma.quotation.findMany({
-    ...args,
-    include: {
-      customer: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          phone: true,
+    return prisma.quotation.findMany({
+      ...args,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        items: true,
+        _count: {
+          select: {
+            invoices: true,
+          },
         },
       },
-      items: true,
-      _count: {
-        select: {
-          invoices: true,
+    });
+  }
+  async getTotalCount(startDate?: Date, endDate?: Date) {
+    const where: any = {};
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    return prisma.quotation.count({ where });
+  }
+
+  async getCountThisMonth() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    return prisma.quotation.count({
+      where: {
+        issueDate: {
+          gte: startOfMonth,
+          lte: endOfMonth,
         },
       },
-    },
-  });
-}
+    });
+  }
+
+  async getApprovedCount(startDate?: Date, endDate?: Date) {
+    const where: any = {
+      status: "APPROVED",
+    };
+
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = startDate;
+      if (endDate) where.issueDate.lte = endDate;
+    }
+
+    return prisma.quotation.count({ where });
+  }
 }
 
 export const quotationRepository = new QuotationRepository();
